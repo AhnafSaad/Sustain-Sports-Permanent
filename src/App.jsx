@@ -36,6 +36,8 @@ const PlanetPositive = lazy(() => import('@/pages/sustainability/PlanetPositive'
 
 // --- Protected User Pages ---
 const Profile = lazy(() => import('@/pages/Profile'));
+const MyOrders = lazy(() => import('@/pages/MyOrders'));
+const OrderDetail = lazy(() => import('@/pages/OrderDetail'));
 
 // --- Protected Admin Pages ---
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
@@ -44,6 +46,8 @@ const AdminOverview = lazy(() => import('@/pages/admin/AdminOverview'));
 const AdminProductList = lazy(() => import('@/pages/admin/AdminProductList'));
 const AdminProductEdit = lazy(() => import('@/pages/admin/AdminProductEdit'));
 const AdminDonationList = lazy(() => import('@/pages/admin/AdminDonationList'));
+// --- 1. IMPORT THE NEW ADMIN ORDER LIST PAGE ---
+const AdminOrderList = lazy(() => import('@/pages/admin/AdminOrderList'));
 
 
 const LoadingFallback = () => (
@@ -79,6 +83,10 @@ function App() {
                   <Route path="/terms-of-service" element={<TermsOfService />} />
                   <Route path="/cookie-policy" element={<CookiePolicy />} />
                   <Route path="/recycling" element={<RecyclingPage />} />
+
+                  {/* --- USER ORDER ROUTES --- */}
+                  <Route path="/my-orders" element={<MyOrders />} />
+                  <Route path="/my-orders/:orderId" element={<OrderDetail />} />
                   
                   {/* --- Sustainability Sub-Routes --- */}
                   <Route path="/sustainability/impact-report" element={<ImpactReport />} />
@@ -98,10 +106,14 @@ function App() {
                       <Route path="products" element={<AdminProductList />} />
                       <Route path="products/:id/edit" element={<AdminProductEdit />} />
                       <Route path="donations" element={<AdminDonationList />} />
+                      {/* --- 2. ADD THE NEW ROUTE FOR MANAGING ORDERS --- */}
+                      <Route path="orders" element={<AdminOrderList />} />
                     </Route>
                     <Route path="users" element={<Navigate to="/admin/dashboard/users" replace />} />
                     <Route path="products" element={<Navigate to="/admin/dashboard/products" replace />} />
                     <Route path="donations" element={<Navigate to="/admin/dashboard/donations" replace />} />
+                    {/* --- 3. ADD A REDIRECT FOR THE ORDERS ROUTE --- */}
+                    <Route path="orders" element={<Navigate to="/admin/dashboard/orders" replace />} />
                   </Route>
 
                 </Routes>
@@ -117,4 +129,3 @@ function App() {
 }
 
 export default App;
-

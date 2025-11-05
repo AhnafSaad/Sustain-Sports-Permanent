@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -40,21 +39,58 @@ const Checkout = () => {
     }));
   };
 
+  // --- MODIFIED FUNCTION ---
+  // This function now saves the order to localStorage before clearing the cart.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsProcessing(true);
 
     // Simulate payment processing
     setTimeout(() => {
+      
+      // 1. Get existing orders from local storage, or create an empty array
+      const allOrders = JSON.parse(localStorage.getItem('sustainSportsUserOrders') || '[]');
+
+      // 2. Create a new order object
+      const newOrder = {
+        id: `SS-${Math.random().toString(36).substr(2, 9).toUpperCase()}`, // A simple unique ID
+        userId: user.email, // Use email as the unique ID
+        date: new Date().toISOString(),
+        status: 'Processing',
+        items: items, // Items from useCart()
+        total: (getCartTotal() * 1.08), // Total from useCart()
+        shippingAddress: {
+          name: `${formData.firstName} ${formData.lastName}`,
+          address: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zipCode}`,
+          phone: '', // You don't collect this, but OrderDetail.jsx might use it
+        },
+        billingAddress: {
+          name: formData.nameOnCard,
+          address: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zipCode}`,
+        },
+        shippingMethod: 'Free Shipping',
+        paymentMethod: `Card ending in ${formData.cardNumber.slice(-4)}`,
+        trackingNumber: `1Z${Math.random().toString().slice(2, 18)}` // Fake tracking #
+      };
+
+      // 3. Add the new order to the beginning of the list
+      const updatedOrders = [newOrder, ...allOrders];
+
+      // 4. Save the updated list back to local storage
+      localStorage.setItem('sustainSportsUserOrders', JSON.stringify(updatedOrders));
+
+      // 5. Now continue with your original logic
       clearCart();
       setIsProcessing(false);
       toast({
         title: "Order placed successfully! 🎉",
         description: "Thank you for your eco-friendly purchase! You'll receive a confirmation email shortly."
       });
-      navigate('/');
+      // Navigate to My Orders to see the new order!
+      navigate('/my-orders'); 
     }, 2000);
   };
+  // --- END OF MODIFICATION ---
 
   if (items.length === 0) {
     return (

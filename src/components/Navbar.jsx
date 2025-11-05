@@ -1,8 +1,7 @@
 import React, { useState, useEffect, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-// --- 1. ADDED: Import a new icon for the donations link ---
-import { ShoppingCart, User, Menu, X, Leaf, Search, Zap, ChevronDown, Recycle, ShieldCheck, Gift } from 'lucide-react';
+import { ShoppingCart, User, Menu, X, Leaf, Search, Zap, ChevronDown, Recycle, ShieldCheck, Gift, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -20,7 +19,6 @@ import { useToast } from '@/components/ui/use-toast';
 import axios from 'axios';
 
 const Navbar = memo(() => {
-  // ... (all existing state and functions are unchanged)
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [categories, setCategories] = useState([]);
@@ -73,7 +71,6 @@ const Navbar = memo(() => {
     <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-green-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* ... (Logo and main nav links are unchanged) ... */}
            <Link to="/" className="flex items-center space-x-2" onClick={closeMenu}>
             <motion.div
               whileHover={{ rotate: 360 }}
@@ -117,7 +114,6 @@ const Navbar = memo(() => {
 
 
           <div className="flex items-center space-x-4">
-            {/* ... (Search and Cart are unchanged) ... */}
             <form onSubmit={handleSearchSubmit} className="relative hidden lg:block">
                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                <Input
@@ -159,9 +155,23 @@ const Navbar = memo(() => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
-                      <Link to="/profile">My Profile</Link>
+                      <Link to="/profile" className="flex items-center">
+                        <User className="w-4 h-4 mr-2" />
+                        My Profile
+                      </Link>
                     </DropdownMenuItem>
                     
+                    {/* --- 1. MODIFIED: Only show "My Orders" if NOT admin --- */}
+                    {!user.isAdmin && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/my-orders" className="flex items-center">
+                          <Package className="w-4 h-4 mr-2" />
+                          My Orders
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    
+                    {/* --- This section only shows if user IS admin --- */}
                     {user.isAdmin && (
                       <DropdownMenuGroup>
                         <DropdownMenuSeparator />
@@ -174,7 +184,9 @@ const Navbar = memo(() => {
                         <DropdownMenuItem asChild>
                           <Link to="/admin/dashboard/products">Manage Products</Link>
                         </DropdownMenuItem>
-                        {/* --- 2. ADDED: The new link for managing donations --- */}
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/dashboard/orders">Manage Orders</Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link to="/admin/dashboard/donations">Manage Donations</Link>
                         </DropdownMenuItem>
@@ -212,18 +224,32 @@ const Navbar = memo(() => {
             className="md:hidden py-4 border-t border-green-100"
           >
             <nav className="flex flex-col space-y-4">
-                {/* ... (other mobile links are unchanged) ... */}
+                <Link to="/" className="text-gray-700 hover:text-green-600" onClick={closeMenu}>Home</Link>
+                <Link to="/products" className="text-gray-700 hover:text-green-600" onClick={closeMenu}>Products</Link>
+                <Link to="/sustainability" className="text-gray-700 hover:text-green-600 flex items-center" onClick={closeMenu}>
+                    <Zap className="w-4 h-4 mr-1 text-green-500" /> Sustainability
+                </Link>
+                <Link to="/recycling" className="text-gray-700 hover:text-green-600 flex items-center" onClick={closeMenu}>
+                    <Recycle className="w-4 h-4 mr-1 text-green-500" /> Recycling
+                </Link>
+
                <div className="pt-4 border-t border-green-100">
                 {user ? (
                     <div className="space-y-4">
                         <Link to="/profile" className="font-medium text-gray-700 block" onClick={closeMenu}>My Profile</Link>
                         
+                        {/* --- 2. MODIFIED: Only show "My Orders" if NOT admin --- */}
+                        {!user.isAdmin && (
+                          <Link to="/my-orders" className="font-medium text-gray-700 block" onClick={closeMenu}>My Orders</Link>
+                        )}
+                        
+                        {/* --- This section only shows if user IS admin --- */}
                         {user.isAdmin && (
                             <div className="pl-2 border-l-2 border-green-200 space-y-2">
                                 <p className="text-sm font-semibold text-gray-500">Admin</p>
                                 <Link to="/admin/dashboard/users" className="block text-gray-600 hover:text-green-600" onClick={closeMenu}>Manage Users</Link>
                                 <Link to="/admin/dashboard/products" className="block text-gray-600 hover:text-green-600" onClick={closeMenu}>Manage Products</Link>
-                                {/* --- 3. ADDED: The new mobile link for donations --- */}
+                                <Link to="/admin/dashboard/orders" className="block text-gray-600 hover:text-green-600" onClick={closeMenu}>Manage Orders</Link>
                                 <Link to="/admin/dashboard/donations" className="block text-gray-600 hover:text-green-600" onClick={closeMenu}>Manage Donations</Link>
                             </div>
                         )}
@@ -249,4 +275,3 @@ const Navbar = memo(() => {
 
 Navbar.displayName = 'Navbar';
 export default Navbar;
-
