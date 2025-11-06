@@ -135,16 +135,27 @@ const OrderDetail = () => {
                 <div className="space-y-4">
                   {order.items.map(item => (
                     <div key={item.id} className="flex items-start space-x-4 p-3 bg-gray-50 rounded-lg border">
-                      <div className="w-20 h-20 rounded-md overflow-hidden bg-gray-200">
+                      <div className="w-20 h-20 rounded-md overflow-hidden bg-gray-200 flex-shrink-0">
                         <img  
                             alt={item.name} 
                             className="w-full h-full object-cover"
-                          src="https://images.unsplash.com/photo-1595872018818-97555653a011" />
+                          src={item.image} />
                       </div>
                       <div className="flex-grow">
                         <h3 className="font-semibold text-gray-700">{item.name}</h3>
                         <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
                         <p className="text-sm text-gray-500">Price: ${item.price.toFixed(2)}</p>
+
+                        {/* --- "WRITE A REVIEW" LINK --- */}
+                        {order.status === 'Delivered' && (
+                          <Link to={`/products/${item.id}`}>
+                            <Button variant="link" size="sm" className="p-0 h-auto text-green-600 hover:text-green-700">
+                              Write a review
+                            </Button>
+                          </Link>
+                        )}
+                        {/* --- END OF LINK --- */}
+
                       </div>
                       <p className="font-semibold text-gray-800">${(item.quantity * item.price).toFixed(2)}</p>
                     </div>
@@ -160,7 +171,6 @@ const OrderDetail = () => {
                   <AddressDisplay address={order.shippingAddress} />
                   <p className="mt-2 text-sm text-gray-600"><strong>Shipping Method:</strong> {order.shippingMethod}</p>
                   
-                  {/* --- MODIFIED TRACKING LINK --- */}
                   {order.trackingNumber ? (
                     <p className="text-sm text-gray-600">
                       <strong>Tracking:</strong> 
@@ -176,7 +186,6 @@ const OrderDetail = () => {
                   ) : (
                     <p className="text-sm text-gray-500"><strong>Tracking:</strong> Not yet available</p>
                   )}
-                  {/* --- END OF MODIFICATION --- */}
 
                 </div>
                 <div>
@@ -209,7 +218,6 @@ const OrderDetail = () => {
   );
 };
 
-// --- THIS LINE IS NOW CORRECTED ---
 const InfoItem = ({ icon: Icon, label, value }) => (
   <div className="bg-gray-50 p-3 rounded-lg border">
     <div className="flex items-center text-green-600 mb-1">

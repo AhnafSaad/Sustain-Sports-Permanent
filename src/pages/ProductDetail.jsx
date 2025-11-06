@@ -7,59 +7,34 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/components/ui/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import axios from 'axios'; // <-- 1. IMPORT AXIOS
-
-// --- 2. REMOVE THE OLD STATIC DATA IMPORT ---
-// import { getProductById } from '@/data/products'; 
+import axios from 'axios'; 
+// --- রিভিউ সম্পর্কিত (Dialog, Input, Label, Textarea) ইম্পোর্ট মুছে ফেলা হয়েছে ---
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const { user } = useAuth();
+  const { toast } = useToast();
+  // --- user, searchParams, এবং রিভিউ state গুলো মুছে ফেলা হয়েছে ---
 
-  // --- 3. ADD STATE FOR THE PRODUCT, LOADING, AND ERRORS ---
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [reviews, setReviews] = useState([]);
-  const [showReviewDialog, setShowReviewDialog] = useState(false);
-  const [reviewRating, setReviewRating] = useState(0);
-  const [reviewName, setReviewName] = useState(user?.name || '');
-  const [reviewComment, setReviewComment] = useState('');
+  const [reviews, setReviews] = useState([]); // <-- শুধু রিভিউ দেখানোর জন্য state
 
-  // --- 4. ADD USEEFFECT TO FETCH DATA FROM THE API ---
+  // Fetch product data
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        // We can't fetch from /api/admin/products/:id because that's a protected route.
-        // We'll just fetch ALL products and find the one we need.
-        // In a real app, you'd have a public route like GET /api/products/:id
         const { data: allProducts } = await axios.get('/api/products');
-        
-        // Find the product by its database ID (_id)
         const foundProduct = allProducts.find(p => p._id === id);
         
         if (foundProduct) {
           setProduct(foundProduct);
-          // Load reviews for this product
+          // শুধু রিভিউ লোড করা হচ্ছে
           const storedReviews = JSON.parse(localStorage.getItem(`reviews_${foundProduct._id}`)) || [];
           setReviews(storedReviews);
         } else {
@@ -73,15 +48,10 @@ const ProductDetail = () => {
       }
     };
     fetchProduct();
-  }, [id]); // Re-run if the product ID in the URL changes
+  }, [id]); 
 
-  useEffect(() => {
-    if (user) {
-      setReviewName(user.name);
-    }
-  }, [user]);
+  // --- রিভিউ সম্পর্কিত সব useEffect এবং ফাংশন (handleSubmitReview, StarRatingInput) মুছে ফেলা হয়েছে ---
 
-  // --- 5. ADD LOADING AND ERROR STATES ---
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center">
@@ -104,11 +74,8 @@ const ProductDetail = () => {
       </div>
     );
   }
-  // --- END OF NEW LOGIC ---
-
 
   const handleAddToCart = () => {
-    // --- 6. UPDATE: Use product._id for the cart ---
     const productToAdd = { ...product, id: product._id };
     for (let i = 0; i < quantity; i++) {
       addToCart(productToAdd);
@@ -143,78 +110,10 @@ const ProductDetail = () => {
     });
   };
 
-  const handleSubmitReview = (e) => {
-    e.preventDefault();
-    if (!user) {
-      toast({
-        variant: "destructive",
-        title: "Login Required",
-        description: "Please log in to submit a review."
-      });
-      setShowReviewDialog(false);
-      navigate('/login');
-      return;
-    }
-    if (reviewRating === 0 || !reviewName.trim() || !reviewComment.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Incomplete Review",
-        description: "Please provide a rating, name, and comment."
-      });
-      return;
-    }
-
-    const newReview = {
-      id: Date.now(),
-      name: reviewName,
-      rating: reviewRating,
-      comment: reviewComment,
-      date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-      verified: true, 
-      userId: user._id // <-- Use database ID
-    };
-
-    const updatedReviews = [newReview, ...reviews];
-    setReviews(updatedReviews);
-    // --- 7. UPDATE: Use product._id for storing reviews ---
-    localStorage.setItem(`reviews_${product._id}`, JSON.stringify(updatedReviews));
-
-    toast({
-      title: "Review Submitted! 🌱",
-      description: "Thank you for your feedback."
-    });
-
-    setShowReviewDialog(false);
-    setReviewRating(0);
-    setReviewComment('');
-  };
-
-  const StarRatingInput = ({ rating, setRating }) => {
-    return (
-      <div className="flex space-x-1">
-        {[...Array(5)].map((_, index) => {
-          const starValue = index + 1;
-          return (
-            <Star
-              key={starValue}
-              className={`w-6 h-6 cursor-pointer ${
-                starValue <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
-              }`}
-              onClick={() => setRating(starValue)}
-            />
-          );
-        })}
-      </div>
-    );
-  };
-
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* --- BREADCRUMB SECTION REMOVED --- */}
-
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -240,7 +139,6 @@ const ProductDetail = () => {
               <img  
                 className="w-full h-96 object-cover rounded-2xl shadow-lg"
                 alt={product.name}
-                // --- 8. UPDATE: Use the correct image ---
                 src={product.image || "https://images.unsplash.com/photo-1683724709712-b68cbb3f0069"} />
               <Badge className="absolute top-4 left-4 bg-green-600 text-white">
                 {product.ecoTag}
@@ -253,7 +151,6 @@ const ProductDetail = () => {
             </div>
             
             <div className="grid grid-cols-4 gap-2">
-              {/* --- 9. UPDATE: Use correct image and fallbacks --- */}
               {[
                 product.image, 
                 "https://images.unsplash.com/photo-1589595427524-2ddaf2d43fc9", 
@@ -286,7 +183,6 @@ const ProductDetail = () => {
           >
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                {/* --- 10. UPDATE: Get category name from the populated object --- */}
                 <Badge variant="outline" className="border-green-600 text-green-600">
                   {product.category?.name || 'Category'}
                 </Badge>
@@ -325,62 +221,9 @@ const ProductDetail = () => {
                     />
                   ))}
                 </div>
-                {/* --- 11. UPDATE: Use product.reviews (from DB) as fallback --- */}
                 <span className="text-gray-600">({reviews.length > 0 ? reviews.length : (product.reviews || 0)} reviews)</span>
-                <Dialog open={showReviewDialog} onOpenChange={setShowReviewDialog}>
-                  <DialogTrigger asChild>
-                    <button 
-                      className="text-green-600 hover:underline text-sm"
-                    >
-                      Write a review
-                    </button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Write a Review for {product.name}</DialogTitle>
-                      <DialogDescription>
-                        Share your thoughts about this product with other customers.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleSubmitReview} className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="rating" className="text-right">
-                          Rating
-                        </Label>
-                        <div className="col-span-3">
-                          <StarRatingInput rating={reviewRating} setRating={setReviewRating} />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="name" className="text-right">
-                          Name
-                        </Label>
-                        <Input
-                          id="name"
-                          value={reviewName}
-                          onChange={(e) => setReviewName(e.target.value)}
-                          className="col-span-3"
-                          disabled={!!user} 
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="comment" className="text-right">
-                          Comment
-                        </Label>
-                        <Textarea
-                          id="comment"
-                          value={reviewComment}
-                          onChange={(e) => setReviewComment(e.target.value)}
-                          className="col-span-3"
-                          placeholder="Tell us more about your experience..."
-                        />
-                      </div>
-                      <DialogFooter>
-                        <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">Submit Review</Button>
-                      </DialogFooter>
-                    </form>
-                  </DialogContent>
-                </Dialog>
+                
+                {/* --- "Write a review" বাটনটি এখান থেকে মুছে ফেলা হয়েছে --- */}
               </div>
 
               <div className="flex items-center space-x-4">
@@ -395,14 +238,12 @@ const ProductDetail = () => {
                 )}
               </div>
 
-              {/* --- 12. UPDATE: Use fullDescription if available --- */}
               <p className="text-gray-700 leading-relaxed">{product.fullDescription || product.description}</p>
             </div>
 
             <div className="space-y-3">
               <h3 className="font-semibold text-gray-900">Key Features:</h3>
               <div className="grid grid-cols-1 gap-2">
-                {/* --- 13. UPDATE: Check if features exist --- */}
                 {product.features && product.features.length > 0 ? (
                   product.features.map((feature, index) => (
                     <div key={index} className="flex items-center space-x-2">
@@ -493,58 +334,7 @@ const ProductDetail = () => {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900">Customer Reviews ({reviews.length})</h2>
-                <Dialog open={showReviewDialog} onOpenChange={setShowReviewDialog}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-green-600 hover:bg-green-700 text-white">
-                      Write a Review
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Write a Review for {product.name}</DialogTitle>
-                      <DialogDescription>
-                        Share your thoughts about this product with other customers.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleSubmitReview} className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="rating-modal" className="text-right">
-                          Rating
-                        </Label>
-                        <div className="col-span-3">
-                          <StarRatingInput rating={reviewRating} setRating={setReviewRating} />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="name-modal" className="text-right">
-                          Name
-                        </Label>
-                        <Input
-                          id="name-modal"
-                          value={reviewName}
-                          onChange={(e) => setReviewName(e.target.value)}
-                          className="col-span-3"
-                          disabled={!!user}
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="comment-modal" className="text-right">
-                          Comment
-                        </Label>
-                        <Textarea
-                          id="comment-modal"
-                          value={reviewComment}
-                          onChange={(e) => setReviewComment(e.target.value)}
-                          className="col-span-3"
-                          placeholder="Tell us more about your experience..."
-                        />
-                      </div>
-                      <DialogFooter>
-                        <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">Submit Review</Button>
-                      </DialogFooter>
-                    </form>
-                  </DialogContent>
-                </Dialog>
+                {/* --- "Write a Review" বাটনটি এখান থেকে মুছে ফেলা হয়েছে --- */}
               </div>
 
               {reviews.length > 0 ? (
