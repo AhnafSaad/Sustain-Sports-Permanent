@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -7,8 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { useCart } from '@/contexts/CartContext';
-import { getProductById } from '@/data/products';
-import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   Dialog,
@@ -22,12 +20,22 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import axios from 'axios'; // <-- 1. IMPORT AXIOS
+
+// --- 2. REMOVE THE OLD STATIC DATA IMPORT ---
+// import { getProductById } from '@/data/products'; 
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { user } = useAuth();
+
+  // --- 3. ADD STATE FOR THE PRODUCT, LOADING, AND ERRORS ---
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [reviews, setReviews] = useState([]);
@@ -35,15 +43,37 @@ const ProductDetail = () => {
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewName, setReviewName] = useState(user?.name || '');
   const [reviewComment, setReviewComment] = useState('');
-  
-  const product = getProductById(id);
 
+  // --- 4. ADD USEEFFECT TO FETCH DATA FROM THE API ---
   useEffect(() => {
-    if (product) {
-      const storedReviews = JSON.parse(localStorage.getItem(`reviews_${product.id}`)) || [];
-      setReviews(storedReviews);
-    }
-  }, [product]);
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        // We can't fetch from /api/admin/products/:id because that's a protected route.
+        // We'll just fetch ALL products and find the one we need.
+        // In a real app, you'd have a public route like GET /api/products/:id
+        const { data: allProducts } = await axios.get('/api/products');
+        
+        // Find the product by its database ID (_id)
+        const foundProduct = allProducts.find(p => p._id === id);
+        
+        if (foundProduct) {
+          setProduct(foundProduct);
+          // Load reviews for this product
+          const storedReviews = JSON.parse(localStorage.getItem(`reviews_${foundProduct._id}`)) || [];
+          setReviews(storedReviews);
+        } else {
+          setError('Product not found');
+        }
+      } catch (err) {
+        setError('Failed to load product details.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id]); // Re-run if the product ID in the URL changes
 
   useEffect(() => {
     if (user) {
@@ -51,11 +81,20 @@ const ProductDetail = () => {
     }
   }, [user]);
 
-  if (!product) {
+  // --- 5. ADD LOADING AND ERROR STATES ---
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-green-500"></div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center">
         <div className="text-center space-y-4">
-          <h2 className="text-2xl font-bold text-gray-900">Product not found</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{error || 'Product not found'}</h2>
           <Link to="/products">
             <Button className="bg-green-600 hover:bg-green-700 text-white">
               Back to Products
@@ -65,10 +104,14 @@ const ProductDetail = () => {
       </div>
     );
   }
+  // --- END OF NEW LOGIC ---
+
 
   const handleAddToCart = () => {
+    // --- 6. UPDATE: Use product._id for the cart ---
+    const productToAdd = { ...product, id: product._id };
     for (let i = 0; i < quantity; i++) {
-      addToCart(product);
+      addToCart(productToAdd);
     }
     toast({
       title: "Added to cart! 🛒",
@@ -77,8 +120,9 @@ const ProductDetail = () => {
   };
 
   const handleBuyNow = () => {
+    const productToAdd = { ...product, id: product._id };
     for (let i = 0; i < quantity; i++) {
-      addToCart(product);
+      addToCart(productToAdd);
     }
     toast({
       title: "Added to cart! 🛒",
@@ -127,12 +171,13 @@ const ProductDetail = () => {
       comment: reviewComment,
       date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
       verified: true, 
-      userId: user.id
+      userId: user._id // <-- Use database ID
     };
 
     const updatedReviews = [newReview, ...reviews];
     setReviews(updatedReviews);
-    localStorage.setItem(`reviews_${product.id}`, JSON.stringify(updatedReviews));
+    // --- 7. UPDATE: Use product._id for storing reviews ---
+    localStorage.setItem(`reviews_${product._id}`, JSON.stringify(updatedReviews));
 
     toast({
       title: "Review Submitted! 🌱",
@@ -167,18 +212,8 @@ const ProductDetail = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex items-center space-x-2 text-sm text-gray-600 mb-8"
-        >
-          <Link to="/" className="hover:text-green-600">Home</Link>
-          <span>/</span>
-          <Link to="/products" className="hover:text-green-600">Products</Link>
-          <span>/</span>
-          <span className="text-gray-900">{product.name}</span>
-        </motion.div>
+        
+        {/* --- BREADCRUMB SECTION REMOVED --- */}
 
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -205,7 +240,8 @@ const ProductDetail = () => {
               <img  
                 className="w-full h-96 object-cover rounded-2xl shadow-lg"
                 alt={product.name}
-               src={product.image || "https://images.unsplash.com/photo-1683724709712-b68cbb3f0069"} />
+                // --- 8. UPDATE: Use the correct image ---
+                src={product.image || "https://images.unsplash.com/photo-1683724709712-b68cbb3f0069"} />
               <Badge className="absolute top-4 left-4 bg-green-600 text-white">
                 {product.ecoTag}
               </Badge>
@@ -217,7 +253,13 @@ const ProductDetail = () => {
             </div>
             
             <div className="grid grid-cols-4 gap-2">
-              {[product.image, "https://images.unsplash.com/photo-1589595427524-2ddaf2d43fc9", "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=100&h=100&fit=crop", "https://images.unsplash.com/photo-1614632537190-23e4b2e69c88?w=100&h=100&fit=crop"].slice(0,4).map((imgSrc, index) => (
+              {/* --- 9. UPDATE: Use correct image and fallbacks --- */}
+              {[
+                product.image, 
+                "https://images.unsplash.com/photo-1589595427524-2ddaf2d43fc9", 
+                "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=100&h=100&fit=crop", 
+                "https://images.unsplash.com/photo-1614632537190-23e4b2e69c88?w=100&h=100&fit=crop"
+              ].slice(0,4).map((imgSrc, index) => (
                 <motion.div
                   key={index}
                   whileHover={{ scale: 1.05 }}
@@ -230,7 +272,7 @@ const ProductDetail = () => {
                   <img  
                     className="w-full h-20 object-cover"
                     alt={`${product.name} view ${index + 1}`}
-                   src={imgSrc || "https://images.unsplash.com/photo-1589595427524-2ddaf2d43fc9"} />
+                    src={imgSrc || "https://images.unsplash.com/photo-1589595427524-2ddaf2d43fc9"} />
                 </motion.div>
               ))}
             </div>
@@ -244,8 +286,9 @@ const ProductDetail = () => {
           >
             <div className="space-y-4">
               <div className="flex items-center justify-between">
+                {/* --- 10. UPDATE: Get category name from the populated object --- */}
                 <Badge variant="outline" className="border-green-600 text-green-600">
-                  {product.category}
+                  {product.category?.name || 'Category'}
                 </Badge>
                 <div className="flex space-x-2">
                   <Button
@@ -282,7 +325,8 @@ const ProductDetail = () => {
                     />
                   ))}
                 </div>
-                <span className="text-gray-600">({reviews.length > 0 ? reviews.length : product.reviews} reviews)</span>
+                {/* --- 11. UPDATE: Use product.reviews (from DB) as fallback --- */}
+                <span className="text-gray-600">({reviews.length > 0 ? reviews.length : (product.reviews || 0)} reviews)</span>
                 <Dialog open={showReviewDialog} onOpenChange={setShowReviewDialog}>
                   <DialogTrigger asChild>
                     <button 
@@ -351,18 +395,24 @@ const ProductDetail = () => {
                 )}
               </div>
 
-              <p className="text-gray-700 leading-relaxed">{product.fullDescription}</p>
+              {/* --- 12. UPDATE: Use fullDescription if available --- */}
+              <p className="text-gray-700 leading-relaxed">{product.fullDescription || product.description}</p>
             </div>
 
             <div className="space-y-3">
               <h3 className="font-semibold text-gray-900">Key Features:</h3>
               <div className="grid grid-cols-1 gap-2">
-                {product.features.map((feature, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-gray-700">{feature}</span>
-                  </div>
-                ))}
+                {/* --- 13. UPDATE: Check if features exist --- */}
+                {product.features && product.features.length > 0 ? (
+                  product.features.map((feature, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <Check className="w-4 h-4 text-green-600" />
+                      <span className="text-gray-700">{feature}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-600">No features listed.</p>
+                )}
               </div>
             </div>
 

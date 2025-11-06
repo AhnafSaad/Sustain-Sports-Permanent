@@ -26,7 +26,7 @@ const FeaturedProductsSection = ({ products, onAddToCart }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {products.map((product, index) => (
             <motion.div
-              key={product.id}
+              key={product._id} // <-- FIX: Use _id for the key
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: index * 0.1 }}
@@ -38,7 +38,8 @@ const FeaturedProductsSection = ({ products, onAddToCart }) => {
                   <img
                     className="w-full h-48 object-cover"
                     alt={product.name}
-                   src="https://images.unsplash.com/photo-1591291621060-89264efbeaed" />
+                    src={product.image} // <-- FIX: Use dynamic product.image
+                  />
                   <Badge className="absolute top-3 left-3 bg-green-600 text-white">
                     {product.ecoTag}
                   </Badge>
@@ -85,15 +86,16 @@ const FeaturedProductsSection = ({ products, onAddToCart }) => {
                     )}
                   </div>
                 </CardContent>
-                <CardFooter className="p-4 pt-0 space-y-2">
+                {/* --- FIX: Changed to flex layout --- */}
+                <CardFooter className="p-4 pt-0 flex space-x-2">
                   <Button
                     onClick={() => onAddToCart(product)}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white"
                   >
                     <ShoppingCart className="w-4 h-4 mr-2" />
                     Add to Cart
                   </Button>
-                  <Link to={`/products/${product.id}`} className="w-full">
+                  <Link to={`/products/${product._id}`} className="flex-1"> {/* <-- FIX: Use _id for the link */}
                     <Button variant="outline" className="w-full border-green-600 text-green-600 hover:bg-green-50">
                       View Details
                     </Button>
