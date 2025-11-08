@@ -11,7 +11,7 @@ const sustainabilitySections = [
     description: 'Transparency in our journey: progress, challenges, and future goals.',
     icon: TrendingUp,
     link: '/sustainability/impact-report',
-    imgSrc: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=700&h=400&q=80',
+    imgSrc: 'https://iili.io/KDBg2vp.jpg',
     imageAlt: 'Graph showing positive environmental impact trends'
   },
   {
@@ -19,7 +19,7 @@ const sustainabilitySections = [
     description: 'Our unwavering commitment to products that are kind to the Earth, from creation to end-of-life.',
     icon: ShieldCheck,
     link: '/sustainability/100-eco-friendly',
-    imgSrc: 'https://images.unsplash.com/photo-1605098104989-1e1690b39902?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=700&h=400&q=80',
+    imgSrc: 'https://iili.io/KtSgoKv.jpg',
     imageAlt: 'Collection of beautifully designed eco-friendly sports gear'
   },
   {
@@ -27,7 +27,7 @@ const sustainabilitySections = [
     description: 'Discover the innovative, sustainable materials that form the heart of our gear.',
     icon: Leaf,
     link: '/sustainability/eco-friendly-materials',
-    imgSrc: 'https://images.unsplash.com/photo-1560419515-649760501619?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=700&h=400&q=80',
+    imgSrc: 'https://iili.io/KtSDIwv.jpg',
     imageAlt: 'Close-up of various sustainable textiles like organic cotton and recycled polyester'
   },
   {
@@ -35,7 +35,7 @@ const sustainabilitySections = [
     description: 'A brief look at how we design for longevity, repairability, and recyclability to close the loop.',
     icon: Recycle,
     link: '/sustainability/circular-economy-summary',
-    imgSrc: 'https://images.unsplash.com/photo-1633989467830-50df001098a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=700&h=400&q=80',
+    imgSrc: 'https://iili.io/KtUJhIn.jpg',
     imageAlt: 'Infographic illustrating a simple circular product lifecycle'
   },
   {
@@ -43,7 +43,7 @@ const sustainabilitySections = [
     description: 'Explore our detailed strategies for transforming product lifecycles and eliminating waste.',
     icon: PackageCheck,
     link: '/sustainability/circular-economy',
-    imgSrc: 'https://images.unsplash.com/photo-1610470000000-d2e2b94a6c5e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=700&h=400&q=80',
+    imgSrc: 'https://iili.io/KDBQ667.webp',
     imageAlt: 'Detailed infographic showing a complex circular economy flow'
   },
   {
@@ -51,7 +51,7 @@ const sustainabilitySections = [
     description: 'Our ambition to go beyond neutral and actively contribute to a healthier planet.',
     icon: Globe,
     link: '/sustainability/planet-positive',
-    imgSrc: 'https://images.unsplash.com/photo-1581353294203-4e136a002964?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=700&h=400&q=80',
+    imgSrc: 'https://iili.io/KDBmeIa.webp',
     imageAlt: 'Image of Earth from space with a green glow, symbolizing a healthier planet'
   },
   {
@@ -59,7 +59,7 @@ const sustainabilitySections = [
     description: 'How we\'re working to protect and preserve precious water resources.',
     icon: Droplets,
     link: '/sustainability/water-conservation',
-    imgSrc: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=700&h=400&q=80',
+    imgSrc: 'https://iili.io/KDC3NWX.webp',
     imageAlt: 'Hands cupping clean, clear water'
   },
 ];

@@ -40,10 +40,21 @@ const AdminProductEdit = () => {
     fetchData();
   }, [productId]);
 
+  // --- START: MODIFIED FUNCTION ---
+  // এই ফাংশনটি 'features' অ্যারে হ্যান্ডেল করার জন্য আপডেট করা হয়েছে
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setProduct({ ...product, [name]: value });
+
+    if (name === 'features') {
+      // প্রতিটি লাইনকে (\n) একটি আলাদা অ্যারে আইটেম হিসাবে ভাগ করা হয়
+      const featuresArray = value.split('\n').filter(f => f.trim() !== '');
+      setProduct({ ...product, features: featuresArray });
+    } else {
+      // অন্যান্য সকল ইনপুট স্বাভাবিকভাবে হ্যান্ডেল করা হয়
+      setProduct({ ...product, [name]: value });
+    }
   };
+  // --- END: MODIFIED FUNCTION ---
   
   const handleSelectChange = (value) => {
     setProduct({ ...product, category: value });
@@ -100,10 +111,43 @@ const AdminProductEdit = () => {
               </SelectContent>
             </Select>
           </div>
+          
           <div>
-            <Label htmlFor="description">Description</Label>
-            <Textarea id="description" name="description" value={product.description} onChange={handleInputChange} />
+            <Label htmlFor="description">Short Description</Label>
+            <Textarea 
+              id="description" 
+              name="description" 
+              value={product.description} 
+              onChange={handleInputChange} 
+              rows={3} 
+            />
           </div>
+          <div>
+            <Label htmlFor="fullDescription">Full Description (Main Page)</Label>
+            <Textarea 
+              id="fullDescription" 
+              name="fullDescription" 
+              value={product.fullDescription} 
+              onChange={handleInputChange} 
+              rows={6} 
+            />
+          </div>
+
+          {/* --- START: NEW KEY FEATURES FIELD --- */}
+          <div>
+            <Label htmlFor="features">Key Features (প্রতি লাইনে একটি করে লিখুন)</Label>
+            <Textarea 
+              id="features" 
+              name="features" 
+              // অ্যারে-কে (\n) দিয়ে জয়েন করে দেখানো হচ্ছে
+              value={(product.features || []).join('\n')} 
+              onChange={handleInputChange} 
+              rows={4} 
+              placeholder="Feature 1&#10;Feature 2&#10;Feature 3"
+            />
+          </div>
+          {/* --- END: NEW KEY FEATURES FIELD --- */}
+
           <div className="flex items-center space-x-2">
             <Checkbox id="inStock" checked={product.inStock} onCheckedChange={handleCheckboxChange} />
             <Label htmlFor="inStock">In Stock</Label>
@@ -116,4 +160,3 @@ const AdminProductEdit = () => {
 };
 
 export default AdminProductEdit;
-

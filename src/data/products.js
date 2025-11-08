@@ -49,7 +49,7 @@ export const products = [
     originalPrice: 34.99,
     description: 'Set of 2 natural cork yoga blocks. Lightweight, antimicrobial, and sustainably harvested.',
     fullDescription: 'These premium cork yoga blocks are harvested from sustainable cork oak forests without harming the trees. Cork naturally provides excellent grip, even when wet, and has antimicrobial properties. The lightweight yet sturdy construction makes them perfect for deepening poses and providing support during practice.',
-    image: 'https://images.unsplash.com/photo-1506629905607-d9c841d4ac93?w=500&h=500&fit=crop',
+    image: 'https://iili.io/KtgPE4n.jpg',
     ecoTag: 'Sustainable Cork',
     inStock: true,
     rating: 4.7,
