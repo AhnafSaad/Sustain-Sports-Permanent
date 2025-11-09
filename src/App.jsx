@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from '@/components/ui/toaster';
 import { CartProvider } from '@/contexts/CartContext';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { WishlistProvider } from '@/contexts/WishlistContext'; // <-- 1. IMPORT WISHLIST PROVIDER
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
@@ -24,6 +25,7 @@ const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
 const CookiePolicy = lazy(() => import('@/pages/CookiePolicy'));
 const RecyclingPage = lazy(() => import('@/pages/DonationRecycling')); 
+const Wishlist = lazy(() => import('@/pages/Wishlist')); // <-- 2. IMPORT WISHLIST PAGE
 
 // --- Sustainability Sub-Pages ---
 const ImpactReport = lazy(() => import('@/pages/sustainability/ImpactReport'));
@@ -46,7 +48,6 @@ const AdminOverview = lazy(() => import('@/pages/admin/AdminOverview'));
 const AdminProductList = lazy(() => import('@/pages/admin/AdminProductList'));
 const AdminProductEdit = lazy(() => import('@/pages/admin/AdminProductEdit'));
 const AdminDonationList = lazy(() => import('@/pages/admin/AdminDonationList'));
-// --- 1. IMPORT THE NEW ADMIN ORDER LIST PAGE ---
 const AdminOrderList = lazy(() => import('@/pages/admin/AdminOrderList'));
 
 
@@ -60,69 +61,70 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <Router>
-          <ScrollToTop />
-          <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex flex-col">
-            <Navbar />
-            <main className="flex-grow">
-              <Suspense fallback={<LoadingFallback />}>
-                <Routes>
-                  {/* --- Public Routes --- */}
-                  <Route path="/" element={<Home />} />
-                  <Route path="/products" element={<Products />} />
-                  <Route path="/products/:id" element={<ProductDetail />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/sustainability" element={<Sustainability />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                  <Route path="/terms-of-service" element={<TermsOfService />} />
-                  <Route path="/cookie-policy" element={<CookiePolicy />} />
-                  <Route path="/recycling" element={<RecyclingPage />} />
+        <WishlistProvider> {/* <-- 3. WRAP WITH WISHLIST PROVIDER */}
+          <Router>
+            <ScrollToTop />
+            <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex flex-col">
+              <Navbar />
+              <main className="flex-grow">
+                <Suspense fallback={<LoadingFallback />}>
+                  <Routes>
+                    {/* --- Public Routes --- */}
+                    <Route path="/" element={<Home />} />
+                    <Route path="/products" element={<Products />} />
+                    <Route path="/products/:id" element={<ProductDetail />} />
+                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/sustainability" element={<Sustainability />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                    <Route path="/terms-of-service" element={<TermsOfService />} />
+                    <Route path="/cookie-policy" element={<CookiePolicy />} />
+                    <Route path="/recycling" element={<RecyclingPage />} />
+                    <Route path="/wishlist" element={<Wishlist />} /> {/* <-- 4. ADD NEW ROUTE */}
 
-                  {/* --- USER ORDER ROUTES --- */}
-                  <Route path="/my-orders" element={<MyOrders />} />
-                  <Route path="/my-orders/:orderId" element={<OrderDetail />} />
-                  
-                  {/* --- Sustainability Sub-Routes --- */}
-                  <Route path="/sustainability/impact-report" element={<ImpactReport />} />
-                  <Route path="/sustainability/eco-friendly-materials" element={<EcoFriendlyMaterials />} />
-                  <Route path="/sustainability/circular-economy-summary" element={<CircularEconomySummary />} /> 
-                  <Route path="/sustainability/water-conservation" element={<WaterConservation />} />
-                  <Route path="/sustainability/100-eco-friendly" element={<HundredPercentEcoFriendly />} />
-                  <Route path="/sustainability/circular-economy" element={<CircularEconomyDetail />} />
-                  <Route path="/sustainability/planet-positive" element={<PlanetPositive />} />
-                  
-                  {/* --- Admin Routes (Protected) --- */}
-                  <Route path="/admin" element={<AdminRoute />}>
-                    <Route index element={<Navigate to="/admin/dashboard" replace />} />
-                    <Route path="dashboard" element={<AdminDashboard />}>
-                      <Route index element={<AdminOverview />} />
-                      <Route path="users" element={<AdminUserList />} />
-                      <Route path="products" element={<AdminProductList />} />
-                      <Route path="products/:id/edit" element={<AdminProductEdit />} />
-                      <Route path="donations" element={<AdminDonationList />} />
-                      {/* --- 2. ADD THE NEW ROUTE FOR MANAGING ORDERS --- */}
-                      <Route path="orders" element={<AdminOrderList />} />
+                    {/* --- USER ORDER ROUTES --- */}
+                    <Route path="/my-orders" element={<MyOrders />} />
+                    <Route path="/my-orders/:orderId" element={<OrderDetail />} />
+                    
+                    {/* --- Sustainability Sub-Routes --- */}
+                    <Route path="/sustainability/impact-report" element={<ImpactReport />} />
+                    <Route path="/sustainability/eco-friendly-materials" element={<EcoFriendlyMaterials />} />
+                    <Route path="/sustainability/circular-economy-summary" element={<CircularEconomySummary />} /> 
+                    <Route path="/sustainability/water-conservation" element={<WaterConservation />} />
+                    <Route path="/sustainability/100-eco-friendly" element={<HundredPercentEcoFriendly />} />
+                    <Route path="/sustainability/circular-economy" element={<CircularEconomyDetail />} />
+                    <Route path="/sustainability/planet-positive" element={<PlanetPositive />} />
+                    
+                    {/* --- Admin Routes (Protected) --- */}
+                    <Route path="/admin" element={<AdminRoute />}>
+                      <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                      <Route path="dashboard" element={<AdminDashboard />}>
+                        <Route index element={<AdminOverview />} />
+                        <Route path="users" element={<AdminUserList />} />
+                        <Route path="products" element={<AdminProductList />} />
+                        <Route path="products/:id/edit" element={<AdminProductEdit />} />
+                        <Route path="donations" element={<AdminDonationList />} />
+                        <Route path="orders" element={<AdminOrderList />} />
+                      </Route>
+                      <Route path="users" element={<Navigate to="/admin/dashboard/users" replace />} />
+                      <Route path="products" element={<Navigate to="/admin/dashboard/products" replace />} />
+                      <Route path="donations" element={<Navigate to="/admin/dashboard/donations" replace />} />
+                      <Route path="orders" element={<Navigate to="/admin/dashboard/orders" replace />} />
                     </Route>
-                    <Route path="users" element={<Navigate to="/admin/dashboard/users" replace />} />
-                    <Route path="products" element={<Navigate to="/admin/dashboard/products" replace />} />
-                    <Route path="donations" element={<Navigate to="/admin/dashboard/donations" replace />} />
-                    {/* --- 3. ADD A REDIRECT FOR THE ORDERS ROUTE --- */}
-                    <Route path="orders" element={<Navigate to="/admin/dashboard/orders" replace />} />
-                  </Route>
 
-                </Routes>
-              </Suspense>
-            </main>
-            <Footer />
-            <Toaster />
-          </div>
-        </Router>
+                  </Routes>
+                </Suspense>
+              </main>
+              <Footer />
+              <Toaster />
+            </div>
+          </Router>
+        </WishlistProvider> {/* <-- 3. CLOSE PROVIDER */}
       </CartProvider>
     </AuthProvider>
   );

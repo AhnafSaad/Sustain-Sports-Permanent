@@ -6,23 +6,30 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext'; // <-- 1. IMPORT useWishlist
 import { useToast } from '@/components/ui/use-toast';
 import axios from 'axios'; 
-// --- রিভিউ সম্পর্কিত (Dialog, Input, Label, Textarea) ইম্পোর্ট মুছে ফেলা হয়েছে ---
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { toast } = useToast();
-  // --- user, searchParams, এবং রিভিউ state গুলো মুছে ফেলা হয়েছে ---
+  
+  // --- 2. ADD WISHLIST HOOK ---
+  const { items: wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [reviews, setReviews] = useState([]); // <-- শুধু রিভিউ দেখানোর জন্য state
+  const [reviews, setReviews] = useState([]); 
+
+  // --- 3. CHECK IF ITEM IS IN WISHLIST ---
+  // We map the API's '_id' to the 'id' our context expects
+  const productToAdd = product ? { ...product, id: product._id } : null;
+  const isInWishlist = productToAdd ? wishlistItems.some(item => item.id === productToAdd.id) : false;
 
   // Fetch product data
   useEffect(() => {
@@ -34,7 +41,6 @@ const ProductDetail = () => {
         
         if (foundProduct) {
           setProduct(foundProduct);
-          // শুধু রিভিউ লোড করা হচ্ছে
           const storedReviews = JSON.parse(localStorage.getItem(`reviews_${foundProduct._id}`)) || [];
           setReviews(storedReviews);
         } else {
@@ -50,8 +56,54 @@ const ProductDetail = () => {
     fetchProduct();
   }, [id]); 
 
-  // --- রিভিউ সম্পর্কিত সব useEffect এবং ফাংশন (handleSubmitReview, StarRatingInput) মুছে ফেলা হয়েছে ---
+  const handleAddToCart = () => {
+    if (!productToAdd) return;
+    for (let i = 0; i < quantity; i++) {
+      addToCart(productToAdd);
+    }
+    toast({
+      title: "Added to cart! 🛒",
+      description: `${quantity} x ${product.name} added to your cart.`
+    });
+  };
 
+  const handleBuyNow = () => {
+    if (!productToAdd) return;
+    for (let i = 0; i < quantity; i++) {
+      addToCart(productToAdd);
+    }
+    toast({
+      title: "Added to cart! 🛒",
+      description: `${quantity} x ${product.name} added. Proceeding to checkout.`
+    });
+    navigate('/checkout');
+  };
+
+  // --- 4. UPDATE handleWishlist ---
+  const handleWishlist = () => {
+    if (!productToAdd) return;
+
+    if (isInWishlist) {
+      removeFromWishlist(productToAdd.id);
+      toast({
+        title: "Removed from Wishlist",
+        description: `${product.name} has been removed from your wishlist.`,
+      });
+    } else {
+      addToWishlist(productToAdd);
+      toast({
+        title: "Added to Wishlist! ❤️",
+        description: `${product.name} has been added to your wishlist.`,
+      });
+    }
+  };
+
+  const handleShare = () => {
+    toast({
+      title: "🚧 Share feature isn't implemented yet—but don't worry! You can request it in your next prompt! 🚀"
+    });
+  };
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center">
@@ -74,41 +126,6 @@ const ProductDetail = () => {
       </div>
     );
   }
-
-  const handleAddToCart = () => {
-    const productToAdd = { ...product, id: product._id };
-    for (let i = 0; i < quantity; i++) {
-      addToCart(productToAdd);
-    }
-    toast({
-      title: "Added to cart! 🛒",
-      description: `${quantity} x ${product.name} added to your cart.`
-    });
-  };
-
-  const handleBuyNow = () => {
-    const productToAdd = { ...product, id: product._id };
-    for (let i = 0; i < quantity; i++) {
-      addToCart(productToAdd);
-    }
-    toast({
-      title: "Added to cart! 🛒",
-      description: `${quantity} x ${product.name} added. Proceeding to checkout.`
-    });
-    navigate('/checkout');
-  };
-
-  const handleWishlist = () => {
-    toast({
-      title: "🚧 Wishlist feature isn't implemented yet—but don't worry! You can request it in your next prompt! 🚀"
-    });
-  };
-
-  const handleShare = () => {
-    toast({
-      title: "🚧 Share feature isn't implemented yet—but don't worry! You can request it in your next prompt! 🚀"
-    });
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-8">
@@ -191,9 +208,12 @@ const ProductDetail = () => {
                     variant="outline"
                     size="sm"
                     onClick={handleWishlist}
-                    className="border-gray-300 text-gray-600 hover:bg-gray-50"
+                    // --- 5. UPDATE BUTTON STYLE BASED ON STATE ---
+                    className={`border-gray-300 hover:bg-gray-50 ${
+                      isInWishlist ? 'text-red-500' : 'text-gray-600'
+                    }`}
                   >
-                    <Heart className="w-4 h-4" />
+                    <Heart className={`w-4 h-4 ${isInWishlist ? 'fill-current' : ''}`} />
                   </Button>
                   <Button
                     variant="outline"
@@ -222,8 +242,6 @@ const ProductDetail = () => {
                   ))}
                 </div>
                 <span className="text-gray-600">({reviews.length > 0 ? reviews.length : (product.reviews || 0)} reviews)</span>
-                
-                {/* --- "Write a review" বাটনটি এখান থেকে মুছে ফেলা হয়েছে --- */}
               </div>
 
               <div className="flex items-center space-x-4">
@@ -334,7 +352,6 @@ const ProductDetail = () => {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900">Customer Reviews ({reviews.length})</h2>
-                {/* --- "Write a Review" বাটনটি এখান থেকে মুছে ফেলা হয়েছে --- */}
               </div>
 
               {reviews.length > 0 ? (

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingCart, User, Menu, X, Leaf, Search, Zap, ChevronDown, Recycle, ShieldCheck, Gift, Package } from 'lucide-react';
+import { ShoppingCart, User, Menu, X, Leaf, Search, Zap, ChevronDown, Recycle, ShieldCheck, Gift, Package, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useWishlist } from '@/contexts/WishlistContext';
 import { useToast } from '@/components/ui/use-toast';
 import axios from 'axios';
 
@@ -23,6 +24,7 @@ const Navbar = memo(() => {
   const [searchTerm, setSearchTerm] = useState('');
   const [categories, setCategories] = useState([]);
   const { getCartItemsCount } = useCart();
+  const { items: wishlistItems } = useWishlist();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -66,12 +68,21 @@ const Navbar = memo(() => {
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
 
+  // --- 1. ADD THIS NEW HANDLER ---
+  // This function will scroll to top AND close the mobile menu if it's open.
+  const handleHomeClick = () => {
+    window.scrollTo(0, 0);
+    closeMenu();
+  };
+
 
   return (
     <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-green-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-           <Link to="/" className="flex items-center space-x-2" onClick={closeMenu}>
+           
+           {/* --- 2. UPDATE THE LOGO LINK 'onClick' --- */}
+           <Link to="/" className="flex items-center space-x-2" onClick={handleHomeClick}>
             <motion.div
               whileHover={{ rotate: 360 }}
               transition={{ duration: 0.5 }}
@@ -83,8 +94,18 @@ const Navbar = memo(() => {
               Sustain Sports
             </span>
           </Link>
+          
           <div className="hidden md:flex items-center space-x-6">
-            <Link to="/" className="text-gray-700 hover:text-green-600 transition-colors">Home</Link>
+            
+            {/* --- 3. UPDATE THE DESKTOP 'Home' LINK 'onClick' --- */}
+            <Link 
+              to="/" 
+              className="text-gray-700 hover:text-green-600 transition-colors"
+              onClick={handleHomeClick}
+            >
+              Home
+            </Link>
+            
             <Link to="/products" className="text-gray-700 hover:text-green-600 transition-colors">Products</Link>
             <Link to="/sustainability" className="text-gray-700 hover:text-green-600 transition-colors flex items-center">
                 <Zap className="w-4 h-4 mr-1 text-green-500" /> Sustainability
@@ -114,7 +135,9 @@ const Navbar = memo(() => {
 
 
           <div className="flex items-center space-x-4">
-            <form onSubmit={handleSearchSubmit} className="relative hidden lg:block">
+            {/* ... (rest of your search, wishlist, cart, and user dropdown) ... */}
+            {/* (No changes needed in this section) */}
+             <form onSubmit={handleSearchSubmit} className="relative hidden lg:block">
                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                <Input
                  type="text"
@@ -125,6 +148,22 @@ const Navbar = memo(() => {
                  aria-label="Search products"
                />
              </form>
+
+            <Link to="/wishlist" className="relative" aria-label={`View Wishlist, ${wishlistItems.length} items`}>
+              <motion.div
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="p-2 text-gray-700 hover:text-red-500 transition-colors"
+              >
+                <Heart className="w-6 h-6" />
+                {wishlistItems.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {wishlistItems.length}
+                  </span>
+                )}
+              </motion.div>
+            </Link>
+
             <Link to="/cart" className="relative" aria-label={`View Cart, ${getCartItemsCount()} items`}>
               <motion.div
                 whileHover={{ scale: 1.1 }}
@@ -161,7 +200,6 @@ const Navbar = memo(() => {
                       </Link>
                     </DropdownMenuItem>
                     
-                    {/* --- 1. MODIFIED: Only show "My Orders" if NOT admin --- */}
                     {!user.isAdmin && (
                       <DropdownMenuItem asChild>
                         <Link to="/my-orders" className="flex items-center">
@@ -171,7 +209,6 @@ const Navbar = memo(() => {
                       </DropdownMenuItem>
                     )}
                     
-                    {/* --- This section only shows if user IS admin --- */}
                     {user.isAdmin && (
                       <DropdownMenuGroup>
                         <DropdownMenuSeparator />
@@ -224,7 +261,16 @@ const Navbar = memo(() => {
             className="md:hidden py-4 border-t border-green-100"
           >
             <nav className="flex flex-col space-y-4">
-                <Link to="/" className="text-gray-700 hover:text-green-600" onClick={closeMenu}>Home</Link>
+                
+                {/* --- 4. UPDATE THE MOBILE 'Home' LINK 'onClick' --- */}
+                <Link 
+                  to="/" 
+                  className="text-gray-700 hover:text-green-600" 
+                  onClick={handleHomeClick}
+                >
+                  Home
+                </Link>
+                
                 <Link to="/products" className="text-gray-700 hover:text-green-600" onClick={closeMenu}>Products</Link>
                 <Link to="/sustainability" className="text-gray-700 hover:text-green-600 flex items-center" onClick={closeMenu}>
                     <Zap className="w-4 h-4 mr-1 text-green-500" /> Sustainability
@@ -238,12 +284,10 @@ const Navbar = memo(() => {
                     <div className="space-y-4">
                         <Link to="/profile" className="font-medium text-gray-700 block" onClick={closeMenu}>My Profile</Link>
                         
-                        {/* --- 2. MODIFIED: Only show "My Orders" if NOT admin --- */}
                         {!user.isAdmin && (
                           <Link to="/my-orders" className="font-medium text-gray-700 block" onClick={closeMenu}>My Orders</Link>
                         )}
                         
-                        {/* --- This section only shows if user IS admin --- */}
                         {user.isAdmin && (
                             <div className="pl-2 border-l-2 border-green-200 space-y-2">
                                 <p className="text-sm font-semibold text-gray-500">Admin</p>
