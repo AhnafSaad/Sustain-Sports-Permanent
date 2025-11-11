@@ -54,6 +54,7 @@ export const createProduct = asyncHandler(async (req, res) => {
     price: 0,
     user: req.user._id,
     image: '/images/sample.jpg',
+    images: ['/images/sample.jpg'], // <-- এই লাইনটি যোগ করা হয়েছে
     category: defaultCategory._id,
     description: 'Sample description',
     inStock: false,
@@ -83,7 +84,8 @@ export const getProductById = asyncHandler(async (req, res) => {
 // @desc    Update a product
 // @route   PUT /api/admin/products/:id
 export const updateProduct = asyncHandler(async (req, res) => {
-  const { name, price, description, image, category, inStock, originalPrice, fullDescription, ecoTag, features } = req.body;
+  // --- 'images' এখানে যোগ করা হয়েছে ---
+  const { name, price, description, image, category, inStock, originalPrice, fullDescription, ecoTag, features, images } = req.body;
   const product = await Product.findById(req.params.id);
 
   if (product) {
@@ -97,6 +99,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
     product.fullDescription = fullDescription || product.fullDescription;
     product.ecoTag = ecoTag || product.ecoTag;
     product.features = features || product.features;
+    product.images = images || product.images; // <-- এই লাইনটি যোগ করা হয়েছে
 
     const updatedProduct = await product.save();
     res.json(updatedProduct);
@@ -159,4 +162,3 @@ export const updateDonationStatus = asyncHandler(async (req, res) => {
         throw new Error('Donation not found');
     }
 });
-

@@ -40,21 +40,18 @@ const AdminProductEdit = () => {
     fetchData();
   }, [productId]);
 
-  // --- START: MODIFIED FUNCTION ---
-  // এই ফাংশনটি 'features' অ্যারে হ্যান্ডেল করার জন্য আপডেট করা হয়েছে
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === 'features') {
+    if (name === 'features' || name === 'images') {
       // প্রতিটি লাইনকে (\n) একটি আলাদা অ্যারে আইটেম হিসাবে ভাগ করা হয়
-      const featuresArray = value.split('\n').filter(f => f.trim() !== '');
-      setProduct({ ...product, features: featuresArray });
+      const newArray = value.split('\n').filter(f => f.trim() !== '');
+      setProduct({ ...product, [name]: newArray });
     } else {
       // অন্যান্য সকল ইনপুট স্বাভাবিকভাবে হ্যান্ডেল করা হয়
       setProduct({ ...product, [name]: value });
     }
   };
-  // --- END: MODIFIED FUNCTION ---
   
   const handleSelectChange = (value) => {
     setProduct({ ...product, category: value });
@@ -92,10 +89,20 @@ const AdminProductEdit = () => {
             <Label htmlFor="price">Price</Label>
             <Input id="price" name="price" type="number" step="0.01" value={product.price} onChange={handleInputChange} />
           </div>
+           
            <div>
-            <Label htmlFor="image">Image URL</Label>
-            <Input id="image" name="image" value={product.image} onChange={handleInputChange} />
+            {/* --- বাংলা লেখা সরানো হয়েছে --- */}
+            <Label htmlFor="images">Product Images (One URL per line)</Label>
+            <Textarea 
+              id="images" 
+              name="images" 
+              value={(product.images || []).join('\n')} 
+              onChange={handleInputChange} 
+              rows={4} 
+              placeholder="Image URL 1&#10;Image URL 2&#10;Image URL 3"
+            />
           </div>
+
           <div>
             <Label>Category</Label>
             <Select value={product.category?._id || product.category} onValueChange={handleSelectChange}>
@@ -133,20 +140,18 @@ const AdminProductEdit = () => {
             />
           </div>
 
-          {/* --- START: NEW KEY FEATURES FIELD --- */}
           <div>
-            <Label htmlFor="features">Key Features (প্রতি লাইনে একটি করে লিখুন)</Label>
+            {/* --- বাংলা লেখা সরানো হয়েছে --- */}
+            <Label htmlFor="features">Key Features (One per line)</Label>
             <Textarea 
               id="features" 
               name="features" 
-              // অ্যারে-কে (\n) দিয়ে জয়েন করে দেখানো হচ্ছে
               value={(product.features || []).join('\n')} 
               onChange={handleInputChange} 
               rows={4} 
               placeholder="Feature 1&#10;Feature 2&#10;Feature 3"
             />
           </div>
-          {/* --- END: NEW KEY FEATURES FIELD --- */}
 
           <div className="flex items-center space-x-2">
             <Checkbox id="inStock" checked={product.inStock} onCheckedChange={handleCheckboxChange} />

@@ -31,10 +31,16 @@ const productSchema = new mongoose.Schema({
   fullDescription: {
     type: String,
   },
+  // --- এই সেকশনটি পরিবর্তন করা হয়েছে ---
   image: {
     type: String,
-    required: true,
+    required: false, // এটিকে আর required রাখছি না, কারণ 'images' অ্যারে প্রধান হবে
   },
+  images: {
+    type: [String], // ছবিকে একটি অ্যারে হিসাবে যোগ করা হয়েছে
+    default: [],  // ডিফল্ট হিসাবে একটি খালি অ্যারে দেওয়া হয়েছে
+  },
+  // --- পরিবর্তন শেষ ---
   ecoTag: {
     type: String,
   },

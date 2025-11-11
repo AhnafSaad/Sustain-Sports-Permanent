@@ -127,6 +127,13 @@ const ProductDetail = () => {
     );
   }
 
+  // --- এই লাইনটি যোগ করা হয়েছে ---
+  // যদি product.images থাকে তবে সেটি ব্যবহার করুন, না থাকলে পুরনো product.image ব্যবহার করুন
+  const imageGallery = (product.images && product.images.length > 0) 
+    ? product.images 
+    : [product.image || "https://images.unsplash.com/photo-1683724709712-b68cbb3f0069"];
+  // --- পরিবর্তন শেষ ---
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -156,7 +163,9 @@ const ProductDetail = () => {
               <img  
                 className="w-full h-96 object-cover rounded-2xl shadow-lg"
                 alt={product.name}
-                src={product.image || "https://images.unsplash.com/photo-1683724709712-b68cbb3f0069"} />
+                // --- এই লাইনটি পরিবর্তন করা হয়েছে ---
+                src={imageGallery[selectedImage]} // এখন এটি state অনুযায়ী ছবি দেখাবে
+              />
               <Badge className="absolute top-4 left-4 bg-green-600 text-white">
                 {product.ecoTag}
               </Badge>
@@ -167,13 +176,10 @@ const ProductDetail = () => {
               )}
             </div>
             
+            {/* --- এই সেকশনটি পরিবর্তন করা হয়েছে --- */}
             <div className="grid grid-cols-4 gap-2">
-              {[
-                product.image, 
-                "https://images.unsplash.com/photo-1589595427524-2ddaf2d43fc9", 
-                "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=100&h=100&fit=crop", 
-                "https://images.unsplash.com/photo-1614632537190-23e4b2e69c88?w=100&h=100&fit=crop"
-              ].slice(0,4).map((imgSrc, index) => (
+              {/* হার্ড-কোড করা ছবির বদলে 'imageGallery' ম্যাপ করা হয়েছে */}
+              {imageGallery.map((imgSrc, index) => (
                 <motion.div
                   key={index}
                   whileHover={{ scale: 1.05 }}
@@ -181,15 +187,17 @@ const ProductDetail = () => {
                   className={`cursor-pointer rounded-lg overflow-hidden border-2 ${
                     selectedImage === index ? 'border-green-600' : 'border-gray-200'
                   }`}
-                  onClick={() => setSelectedImage(index)}
+                  onClick={() => setSelectedImage(index)} // এটি এখন সঠিকভাবে কাজ করবে
                 >
                   <img  
                     className="w-full h-20 object-cover"
                     alt={`${product.name} view ${index + 1}`}
-                    src={imgSrc || "https://images.unsplash.com/photo-1589595427524-2ddaf2d43fc9"} />
+                    src={imgSrc || "https://images.unsplash.com/photo-1589595427524-2ddaf2d43fc9"} // সোর্স এখন ডাইনামিক
+                  />
                 </motion.div>
               ))}
             </div>
+            {/* --- পরিবর্তন শেষ --- */}
           </motion.div>
 
           <motion.div

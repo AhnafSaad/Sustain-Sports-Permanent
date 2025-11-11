@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -35,11 +34,13 @@ const FeaturedProductsSection = ({ products, onAddToCart }) => {
             >
               <Card className="overflow-hidden leaf-shadow hover:shadow-xl transition-all duration-300">
                 <div className="relative">
+                  {/* --- এই লাইনটি পরিবর্তন করা হয়েছে --- */}
                   <img
                     className="w-full h-48 object-cover"
                     alt={product.name}
-                    src={product.image} // <-- FIX: Use dynamic product.image
+                    src={(product.images && product.images.length > 0) ? product.images[0] : product.image}
                   />
+                  {/* --- পরিবর্তন শেষ --- */}
                   <Badge className="absolute top-3 left-3 bg-green-600 text-white">
                     {product.ecoTag}
                   </Badge>
@@ -50,6 +51,7 @@ const FeaturedProductsSection = ({ products, onAddToCart }) => {
                   )}
                 </div>
                 <CardContent className="p-4 space-y-3">
+                  {/* ... (rest of card content) ... */}
                   <div className="space-y-1">
                     <h3 className="font-semibold text-gray-900 line-clamp-2">
                       {product.name}
@@ -86,7 +88,6 @@ const FeaturedProductsSection = ({ products, onAddToCart }) => {
                     )}
                   </div>
                 </CardContent>
-                {/* --- FIX: Changed to flex layout --- */}
                 <CardFooter className="p-4 pt-0 flex space-x-2">
                   <Button
                     onClick={() => onAddToCart(product)}
