@@ -54,7 +54,7 @@ export const createProduct = asyncHandler(async (req, res) => {
     price: 0,
     user: req.user._id,
     image: '/images/sample.jpg',
-    images: ['/images/sample.jpg'], // <-- এই লাইনটি যোগ করা হয়েছে
+    images: ['/images/sample.jpg'],
     category: defaultCategory._id,
     description: 'Sample description',
     inStock: false,
@@ -84,7 +84,6 @@ export const getProductById = asyncHandler(async (req, res) => {
 // @desc    Update a product
 // @route   PUT /api/admin/products/:id
 export const updateProduct = asyncHandler(async (req, res) => {
-  // --- 'images' এখানে যোগ করা হয়েছে ---
   const { name, price, description, image, category, inStock, originalPrice, fullDescription, ecoTag, features, images } = req.body;
   const product = await Product.findById(req.params.id);
 
@@ -99,7 +98,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
     product.fullDescription = fullDescription || product.fullDescription;
     product.ecoTag = ecoTag || product.ecoTag;
     product.features = features || product.features;
-    product.images = images || product.images; // <-- এই লাইনটি যোগ করা হয়েছে
+    product.images = images || product.images;
 
     const updatedProduct = await product.save();
     res.json(updatedProduct);
@@ -155,6 +154,14 @@ export const updateDonationStatus = asyncHandler(async (req, res) => {
 
     if (donation) {
         donation.status = status;
+
+        // --- ADDED: Generate Promo Code on Approval ---
+        if (status === 'Approved' && !donation.promoCode) {
+            const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+            donation.promoCode = `ECO-REWARD-${randomCode}`;
+        }
+        // ----------------------------------------------
+
         const updatedDonation = await donation.save();
         res.json(updatedDonation);
     } else {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Gift, Recycle, Heart, MapPin, ExternalLink, ArrowLeft, Send, Edit3, Package, Globe } from 'lucide-react';
+import { Gift, Recycle, Heart, MapPin, ExternalLink, ArrowLeft, Send, Edit3, Package, Globe, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link, useNavigate } from 'react-router-dom';
@@ -160,6 +160,15 @@ const DonationRecyclingPage = () => {
     }
   };
 
+  // --- Helper to copy promo code ---
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied! 📋",
+      description: "Promo code copied to clipboard."
+    });
+  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-12">
@@ -282,6 +291,7 @@ const DonationRecyclingPage = () => {
                     <TableRow>
                       <TableHead>Item</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Reward</TableHead> {/* --- Added Reward Column --- */}
                       <TableHead>Date Submitted</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -291,12 +301,34 @@ const DonationRecyclingPage = () => {
                         <TableRow key={donation._id}>
                           <TableCell className="font-medium">{donation.itemName}</TableCell>
                           <TableCell>{getStatusBadge(donation.status)}</TableCell>
+                          <TableCell>
+                            {/* --- Show Promo Code --- */}
+                            {donation.promoCode ? (
+                              <div className="flex items-center space-x-2">
+                                <Badge variant="outline" className="border-green-500 text-green-700 bg-green-50">
+                                  {donation.promoCode}
+                                </Badge>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-6 w-6" 
+                                  onClick={() => copyToClipboard(donation.promoCode)}
+                                >
+                                  <Copy className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground text-xs">
+                                {donation.status === 'Approved' ? 'Processing...' : '-'}
+                              </span>
+                            )}
+                          </TableCell>
                           <TableCell>{new Date(donation.createdAt).toLocaleDateString()}</TableCell>
                         </TableRow>
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan="3" className="text-center h-24">
+                        <TableCell colSpan="4" className="text-center h-24">
                           You haven't submitted any donation requests yet.
                         </TableCell>
                       </TableRow>
@@ -418,4 +450,3 @@ const DonationRecyclingPage = () => {
 };
 
 export default DonationRecyclingPage;
-

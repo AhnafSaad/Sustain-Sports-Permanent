@@ -20,6 +20,10 @@ const donationSchema = new mongoose.Schema({
     enum: ['Pending', 'Approved', 'Disapproved'],
     default: 'Pending',
   },
+  // --- ADDED: Field to store the generated promo code ---
+  promoCode: {
+    type: String,
+  },
 }, {
   timestamps: true,
 });

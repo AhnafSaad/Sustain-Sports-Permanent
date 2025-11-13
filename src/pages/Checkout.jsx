@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, CreditCard, Truck, Shield, Check } from 'lucide-react';
+import { ArrowLeft, CreditCard, Truck, Shield, Check, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,6 +30,8 @@ const Checkout = () => {
   });
 
   const [isProcessing, setIsProcessing] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
+  const [discount, setDiscount] = useState(0);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -39,8 +41,28 @@ const Checkout = () => {
     }));
   };
 
-  // --- MODIFIED FUNCTION ---
-  // This function now saves the order to localStorage before clearing the cart.
+  const handleApplyPromo = () => {
+    if (!promoCode.trim()) return;
+    
+    // Check for our donation reward pattern
+    if (promoCode.toUpperCase().startsWith('ECO-REWARD-')) {
+      // Apply 15% discount for donation rewards
+      const discountAmount = getCartTotal() * 0.15;
+      setDiscount(discountAmount);
+      toast({
+        title: "Promo Applied! 🌱",
+        description: "15% donation reward discount applied."
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Invalid Code",
+        description: "This code is not valid or has expired."
+      });
+      setDiscount(0);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsProcessing(true);
@@ -58,7 +80,7 @@ const Checkout = () => {
         date: new Date().toISOString(),
         status: 'Processing',
         items: items, // Items from useCart()
-        total: (getCartTotal() * 1.08), // Total from useCart()
+        total: ((getCartTotal() - discount) * 1.08), // Total with discount
         shippingAddress: {
           name: `${formData.firstName} ${formData.lastName}`,
           address: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zipCode}`,
@@ -90,7 +112,6 @@ const Checkout = () => {
       navigate('/my-orders'); 
     }, 2000);
   };
-  // --- END OF MODIFICATION ---
 
   if (items.length === 0) {
     return (
@@ -278,7 +299,7 @@ const Checkout = () => {
                     <span>Processing...</span>
                   </div>
                 ) : (
-                  `Place Order - $${(getCartTotal() * 1.08).toFixed(2)}`
+                  `Place Order - $${((getCartTotal() - discount) * 1.08).toFixed(2)}`
                 )}
               </Button>
             </form>
@@ -316,23 +337,46 @@ const Checkout = () => {
             {/* Price Breakdown */}
             <Card className="leaf-shadow">
               <CardContent className="space-y-3 pt-6">
+                
+                {/* Promo Code Input */}
+                <div className="flex space-x-2 mb-4">
+                  <Input 
+                    placeholder="Promo Code" 
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                  />
+                  <Button variant="outline" onClick={handleApplyPromo}>
+                    Apply
+                  </Button>
+                </div>
+
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal:</span>
                   <span className="font-medium">${getCartTotal().toFixed(2)}</span>
                 </div>
+                
+                {/* Show Discount if applied */}
+                {discount > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span className="flex items-center"><Tag className="w-3 h-3 mr-1"/> Discount:</span>
+                    <span className="font-medium">-${discount.toFixed(2)}</span>
+                  </div>
+                )}
+
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping:</span>
                   <span className="font-medium text-green-600">Free</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tax:</span>
-                  <span className="font-medium">${(getCartTotal() * 0.08).toFixed(2)}</span>
+                  <span className="font-medium">${((getCartTotal() - discount) * 0.08).toFixed(2)}</span>
                 </div>
                 <div className="border-t border-gray-200 pt-3">
                   <div className="flex justify-between">
                     <span className="text-lg font-semibold text-gray-900">Total:</span>
                     <span className="text-lg font-bold text-green-600">
-                      ${(getCartTotal() * 1.08).toFixed(2)}
+                      {/* Recalculate total with discount */}
+                      ${((getCartTotal() - discount) * 1.08).toFixed(2)}
                     </span>
                   </div>
                 </div>
