@@ -7,8 +7,9 @@ import productRoutes from './routes/productRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
-// --- 1. ADD: Import the new donation routes file ---
 import donationRoutes from './routes/donationRoutes.js';
+// --- Added subscriber routes import ---
+import subscriberRoutes from './routes/subscriberRoutes.js'; 
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 dotenv.config();
@@ -31,8 +32,9 @@ app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
-// --- 2. ADD: Tell the server to use the donation routes ---
 app.use('/api/donations', donationRoutes);
+// --- Added subscriber route usage ---
+app.use('/api/subscribers', subscriberRoutes);
 
 // --- Test Route ---
 app.get('/', (req, res) => {
@@ -47,4 +49,3 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-

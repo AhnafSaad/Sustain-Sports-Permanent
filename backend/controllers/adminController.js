@@ -18,7 +18,6 @@ export const getUsers = asyncHandler(async (req, res) => {
 export const deleteUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
   if (user) {
-    // You might want to add a check here to prevent deleting the root admin
     if (user.isAdmin) {
       res.status(400);
       throw new Error('Cannot delete an admin user');
@@ -58,6 +57,7 @@ export const createProduct = asyncHandler(async (req, res) => {
     category: defaultCategory._id,
     description: 'Sample description',
     inStock: false,
+    countInStock: 0, // <--- ADDED THIS INITIALIZATION
     originalPrice: 0,
     fullDescription: 'This is a sample product. Please update its details.',
     ecoTag: 'Eco Friendly',
@@ -84,7 +84,21 @@ export const getProductById = asyncHandler(async (req, res) => {
 // @desc    Update a product
 // @route   PUT /api/admin/products/:id
 export const updateProduct = asyncHandler(async (req, res) => {
-  const { name, price, description, image, category, inStock, originalPrice, fullDescription, ecoTag, features, images } = req.body;
+  const { 
+    name, 
+    price, 
+    description, 
+    image, 
+    category, 
+    inStock, 
+    countInStock, // <--- GET THIS FROM REQUEST
+    originalPrice, 
+    fullDescription, 
+    ecoTag, 
+    features, 
+    images 
+  } = req.body;
+
   const product = await Product.findById(req.params.id);
 
   if (product) {
@@ -94,6 +108,9 @@ export const updateProduct = asyncHandler(async (req, res) => {
     product.image = image || product.image;
     product.category = category || product.category;
     product.inStock = inStock === undefined ? product.inStock : inStock;
+    // --- ADDED THIS UPDATE LINE ---
+    product.countInStock = countInStock === undefined ? product.countInStock : countInStock;
+    
     product.originalPrice = originalPrice === undefined ? product.originalPrice : originalPrice;
     product.fullDescription = fullDescription || product.fullDescription;
     product.ecoTag = ecoTag || product.ecoTag;
@@ -155,12 +172,10 @@ export const updateDonationStatus = asyncHandler(async (req, res) => {
     if (donation) {
         donation.status = status;
 
-        // --- ADDED: Generate Promo Code on Approval ---
         if (status === 'Approved' && !donation.promoCode) {
             const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
             donation.promoCode = `ECO-REWARD-${randomCode}`;
         }
-        // ----------------------------------------------
 
         const updatedDonation = await donation.save();
         res.json(updatedDonation);

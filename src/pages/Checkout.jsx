@@ -44,9 +44,7 @@ const Checkout = () => {
   const handleApplyPromo = () => {
     if (!promoCode.trim()) return;
     
-    // Check for our donation reward pattern
     if (promoCode.toUpperCase().startsWith('ECO-REWARD-')) {
-      // Apply 15% discount for donation rewards
       const discountAmount = getCartTotal() * 0.15;
       setDiscount(discountAmount);
       toast({
@@ -67,24 +65,21 @@ const Checkout = () => {
     e.preventDefault();
     setIsProcessing(true);
 
-    // Simulate payment processing
     setTimeout(() => {
       
-      // 1. Get existing orders from local storage, or create an empty array
       const allOrders = JSON.parse(localStorage.getItem('sustainSportsUserOrders') || '[]');
 
-      // 2. Create a new order object
       const newOrder = {
-        id: `SS-${Math.random().toString(36).substr(2, 9).toUpperCase()}`, // A simple unique ID
-        userId: user.email, // Use email as the unique ID
+        id: `SS-${Math.random().toString(36).substr(2, 9).toUpperCase()}`, 
+        userId: user.email, 
         date: new Date().toISOString(),
         status: 'Processing',
-        items: items, // Items from useCart()
-        total: ((getCartTotal() - discount) * 1.08), // Total with discount
+        items: items, 
+        total: ((getCartTotal() - discount) * 1.08), 
         shippingAddress: {
           name: `${formData.firstName} ${formData.lastName}`,
           address: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zipCode}`,
-          phone: '', // You don't collect this, but OrderDetail.jsx might use it
+          phone: '', 
         },
         billingAddress: {
           name: formData.nameOnCard,
@@ -92,23 +87,19 @@ const Checkout = () => {
         },
         shippingMethod: 'Free Shipping',
         paymentMethod: `Card ending in ${formData.cardNumber.slice(-4)}`,
-        trackingNumber: `1Z${Math.random().toString().slice(2, 18)}` // Fake tracking #
+        trackingNumber: `1Z${Math.random().toString().slice(2, 18)}` 
       };
 
-      // 3. Add the new order to the beginning of the list
       const updatedOrders = [newOrder, ...allOrders];
 
-      // 4. Save the updated list back to local storage
       localStorage.setItem('sustainSportsUserOrders', JSON.stringify(updatedOrders));
 
-      // 5. Now continue with your original logic
       clearCart();
       setIsProcessing(false);
       toast({
         title: "Order placed successfully! 🎉",
         description: "Thank you for your eco-friendly purchase! You'll receive a confirmation email shortly."
       });
-      // Navigate to My Orders to see the new order!
       navigate('/my-orders'); 
     }, 2000);
   };
@@ -320,10 +311,16 @@ const Checkout = () => {
               <CardContent className="space-y-4">
                 {items.map((item) => (
                   <div key={item.id} className="flex items-center space-x-4 py-3 border-b border-gray-200 last:border-b-0">
+                    {/* --- FIX: Use correct image source logic --- */}
                     <img  
                       className="w-16 h-16 object-cover rounded-lg"
                       alt={item.name}
-                     src="https://images.unsplash.com/photo-1581156404134-9bf1c6ab0b3d" />
+                      src={
+                        item.images && item.images.length > 0 
+                          ? item.images[0] 
+                          : (item.image || "https://images.unsplash.com/photo-1581156404134-9bf1c6ab0b3d")
+                      } 
+                    />
                     <div className="flex-1">
                       <h4 className="font-medium text-gray-900">{item.name}</h4>
                       <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
@@ -355,7 +352,6 @@ const Checkout = () => {
                   <span className="font-medium">${getCartTotal().toFixed(2)}</span>
                 </div>
                 
-                {/* Show Discount if applied */}
                 {discount > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span className="flex items-center"><Tag className="w-3 h-3 mr-1"/> Discount:</span>
@@ -375,7 +371,6 @@ const Checkout = () => {
                   <div className="flex justify-between">
                     <span className="text-lg font-semibold text-gray-900">Total:</span>
                     <span className="text-lg font-bold text-green-600">
-                      {/* Recalculate total with discount */}
                       ${((getCartTotal() - discount) * 1.08).toFixed(2)}
                     </span>
                   </div>

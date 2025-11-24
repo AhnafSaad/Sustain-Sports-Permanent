@@ -49,17 +49,8 @@ const Login = () => {
     }
   };
 
-  const handleDemoLogin = () => {
-    setFormData({
-      email: 'demo@sustainsports.com',
-      password: 'demo123'
-    });
-    toast({
-      title: "Demo credentials loaded!",
-      description: "Click 'Sign In' to continue with the demo account."
-    });
-  };
-  
+  // Removed handleDemoLogin function
+
   const handleAdminLogin = () => {
     setFormData({
       email: 'admin@sustainsports.com',
@@ -178,14 +169,7 @@ const Login = () => {
                 </Button>
 
                 <div className="flex space-x-2">
-                    <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleDemoLogin}
-                    className="w-full border-green-600 text-green-600 hover:bg-green-50"
-                    >
-                    Try Demo Account
-                    </Button>
+                    {/* Removed "Try Demo Account" Button */}
                     <Button
                     type="button"
                     variant="outline"

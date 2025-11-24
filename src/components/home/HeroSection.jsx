@@ -34,9 +34,7 @@ const HeroSection = () => {
               <span className="text-green-400">Stay Clean.</span>
             </h1>
             <p className="text-xl text-gray-200 leading-relaxed max-w-2xl mx-auto text-shadow-md">
-              Discover sustainable sports equipment that performs as well as it
-              protects our planet. Every purchase helps create a greener
-              future for sports.
+              High-performance sustainable gear for a greener future.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

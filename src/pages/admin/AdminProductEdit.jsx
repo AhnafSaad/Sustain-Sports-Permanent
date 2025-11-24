@@ -22,7 +22,6 @@ const AdminProductEdit = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Fetch both the product details and the list of all categories
         const [{ data: productData }, { data: categoriesData }] = await Promise.all([
           axios.get(`/api/admin/products/${productId}`),
           axios.get('/api/categories')
@@ -44,11 +43,9 @@ const AdminProductEdit = () => {
     const { name, value } = e.target;
 
     if (name === 'features' || name === 'images') {
-      // প্রতিটি লাইনকে (\n) একটি আলাদা অ্যারে আইটেম হিসাবে ভাগ করা হয়
       const newArray = value.split('\n').filter(f => f.trim() !== '');
       setProduct({ ...product, [name]: newArray });
     } else {
-      // অন্যান্য সকল ইনপুট স্বাভাবিকভাবে হ্যান্ডেল করা হয়
       setProduct({ ...product, [name]: value });
     }
   };
@@ -85,13 +82,26 @@ const AdminProductEdit = () => {
             <Label htmlFor="name">Name</Label>
             <Input id="name" name="name" value={product.name} onChange={handleInputChange} />
           </div>
-          <div>
-            <Label htmlFor="price">Price</Label>
-            <Input id="price" name="price" type="number" step="0.01" value={product.price} onChange={handleInputChange} />
+          
+          <div className="flex gap-4">
+            <div className="w-1/2">
+                <Label htmlFor="price">Price ($)</Label>
+                <Input id="price" name="price" type="number" step="0.01" value={product.price} onChange={handleInputChange} />
+            </div>
+            <div className="w-1/2">
+                {/* --- ADDED: Quantity Input --- */}
+                <Label htmlFor="countInStock">Quantity In Stock</Label>
+                <Input 
+                    id="countInStock" 
+                    name="countInStock" 
+                    type="number" 
+                    value={product.countInStock || 0} 
+                    onChange={handleInputChange} 
+                />
+            </div>
           </div>
            
            <div>
-            {/* --- বাংলা লেখা সরানো হয়েছে --- */}
             <Label htmlFor="images">Product Images (One URL per line)</Label>
             <Textarea 
               id="images" 
@@ -141,7 +151,6 @@ const AdminProductEdit = () => {
           </div>
 
           <div>
-            {/* --- বাংলা লেখা সরানো হয়েছে --- */}
             <Label htmlFor="features">Key Features (One per line)</Label>
             <Textarea 
               id="features" 
@@ -155,7 +164,7 @@ const AdminProductEdit = () => {
 
           <div className="flex items-center space-x-2">
             <Checkbox id="inStock" checked={product.inStock} onCheckedChange={handleCheckboxChange} />
-            <Label htmlFor="inStock">In Stock</Label>
+            <Label htmlFor="inStock">Is Active (In Stock)</Label>
           </div>
           <Button type="submit">Update Product</Button>
         </form>

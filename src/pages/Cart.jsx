@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -125,10 +124,16 @@ const Cart = () => {
                     <div className="flex flex-col md:flex-row gap-6">
                       {/* Product Image */}
                       <div className="md:w-32 h-32 flex-shrink-0">
+                        {/* --- FIX: Use first image from array if single image is missing --- */}
                         <img  
                           className="w-full h-full object-cover rounded-lg"
                           alt={item.name}
-                         src="https://images.unsplash.com/photo-1581156404134-9bf1c6ab0b3d" />
+                          src={
+                            item.images && item.images.length > 0 
+                              ? item.images[0] 
+                              : (item.image || "https://images.unsplash.com/photo-1581156404134-9bf1c6ab0b3d")
+                          } 
+                        />
                       </div>
 
                       {/* Product Details */}
@@ -136,7 +141,7 @@ const Cart = () => {
                         <div className="flex flex-col md:flex-row md:items-start md:justify-between">
                           <div className="space-y-2">
                             <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
-                            <p className="text-sm text-gray-600">{item.description}</p>
+                            <p className="text-sm text-gray-600 line-clamp-2">{item.description}</p>
                             <div className="flex items-center space-x-2">
                               <span className="text-lg font-bold text-green-600">${item.price}</span>
                               {item.originalPrice > item.price && (
