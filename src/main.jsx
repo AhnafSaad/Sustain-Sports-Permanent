@@ -1,9 +1,10 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App.jsx';
-import './index.css';
+import "./index.css";
+import App from "./App.jsx";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import axios from "axios";
 
-// We will render the App component directly, 
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5001';// We will render the App component directly, 
 // since it already contains the Router and all the necessary Providers.
 
 ReactDOM.createRoot(document.getElementById('root')).render(
