@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from '@/components/ui/use-toast';
+import { formatPrice } from '@/lib/utils'; // Import helper
 
 const Cart = () => {
   const { items, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
@@ -78,7 +79,6 @@ const Cart = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -109,7 +109,6 @@ const Cart = () => {
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             {items.map((item, index) => (
               <motion.div
@@ -122,9 +121,7 @@ const Cart = () => {
                 <Card className="overflow-hidden leaf-shadow">
                   <CardContent className="p-6">
                     <div className="flex flex-col md:flex-row gap-6">
-                      {/* Product Image */}
                       <div className="md:w-32 h-32 flex-shrink-0">
-                        {/* --- FIX: Use first image from array if single image is missing --- */}
                         <img  
                           className="w-full h-full object-cover rounded-lg"
                           alt={item.name}
@@ -136,21 +133,24 @@ const Cart = () => {
                         />
                       </div>
 
-                      {/* Product Details */}
                       <div className="flex-1 space-y-4">
                         <div className="flex flex-col md:flex-row md:items-start md:justify-between">
                           <div className="space-y-2">
                             <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
                             <p className="text-sm text-gray-600 line-clamp-2">{item.description}</p>
                             <div className="flex items-center space-x-2">
-                              <span className="text-lg font-bold text-green-600">${item.price}</span>
+                              {/* DUAL CURRENCY DISPLAY */}
+                              <span className="text-lg font-bold text-green-600">
+                                {formatPrice(item.price)}
+                              </span>
                               {item.originalPrice > item.price && (
-                                <span className="text-sm text-gray-500 line-through">${item.originalPrice}</span>
+                                <span className="text-sm text-gray-500 line-through">
+                                  {formatPrice(item.originalPrice)}
+                                </span>
                               )}
                             </div>
                           </div>
 
-                          {/* Quantity Controls */}
                           <div className="flex items-center space-x-4 mt-4 md:mt-0">
                             <div className="flex items-center border border-gray-300 rounded-lg">
                               <button
@@ -179,11 +179,11 @@ const Cart = () => {
                           </div>
                         </div>
 
-                        {/* Subtotal */}
                         <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                           <span className="text-sm text-gray-600">Subtotal:</span>
+                          {/* DUAL CURRENCY SUB-TOTAL */}
                           <span className="text-lg font-semibold text-gray-900">
-                            ${(item.price * item.quantity).toFixed(2)}
+                            {formatPrice(item.price * item.quantity)}
                           </span>
                         </div>
                       </div>
@@ -194,7 +194,6 @@ const Cart = () => {
             ))}
           </div>
 
-          {/* Order Summary */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -209,7 +208,7 @@ const Cart = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal:</span>
-                    <span className="font-medium">${getCartTotal().toFixed(2)}</span>
+                    <span className="font-medium">{formatPrice(getCartTotal())}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Shipping:</span>
@@ -217,13 +216,13 @@ const Cart = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Tax:</span>
-                    <span className="font-medium">${(getCartTotal() * 0.08).toFixed(2)}</span>
+                    <span className="font-medium">{formatPrice(getCartTotal() * 0.08)}</span>
                   </div>
                   <div className="border-t border-gray-200 pt-3">
                     <div className="flex justify-between">
                       <span className="text-lg font-semibold text-gray-900">Total:</span>
                       <span className="text-lg font-bold text-green-600">
-                        ${(getCartTotal() * 1.08).toFixed(2)}
+                        {formatPrice(getCartTotal() * 1.08)}
                       </span>
                     </div>
                   </div>
@@ -242,7 +241,6 @@ const Cart = () => {
                   </Link>
                 </div>
 
-                {/* Eco Benefits */}
                 <div className="bg-green-50 p-4 rounded-lg mt-6">
                   <h4 className="font-semibold text-green-800 mb-2">🌱 Your Eco Impact</h4>
                   <div className="space-y-1 text-sm text-green-700">

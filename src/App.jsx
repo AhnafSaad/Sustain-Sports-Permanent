@@ -1,16 +1,14 @@
-import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from '@/components/ui/toaster';
-import { CartProvider } from '@/contexts/CartContext';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { WishlistProvider } from '@/contexts/WishlistContext';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import ScrollToTop from '@/components/ScrollToTop';
-
-// --- ১. নতুন প্রাইভেট রুট ইম্পোর্ট করুন ---
-import AdminRoute from '@/components/AdminRoute';
-import PrivateRoute from '@/components/PrivateRoute'; // <-- এই লাইনটি যোগ করুন
+import AdminRoute from "@/components/AdminRoute";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
+import PrivateRoute from "@/components/PrivateRoute";
+import React, { Suspense, lazy } from "react";
+import ScrollToTop from "@/components/ScrollToTop";
+import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
+import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { CartProvider } from "@/contexts/CartContext";
+import { WishlistProvider } from "@/contexts/WishlistContext";
 
 // --- Public Pages ---
 const Home = lazy(() => import('@/pages/Home'));
@@ -25,10 +23,9 @@ const About = lazy(() => import('@/pages/About'));
 const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
 const CookiePolicy = lazy(() => import('@/pages/CookiePolicy'));
-// --- এই পেজটির নাম পরিবর্তন করা হয়েছে ---
+
 const DonationRecycling = lazy(() => import('@/pages/DonationRecycling')); // RecyclingPage -> DonationRecycling
 
-// --- Private Pages (যেগুলো সুরক্ষিত করা হবে) ---
 const Checkout = lazy(() => import('@/pages/Checkout'));
 const Profile = lazy(() => import('@/pages/Profile'));
 const Wishlist = lazy(() => import('@/pages/Wishlist'));
@@ -38,7 +35,7 @@ const OrderDetail = lazy(() => import('@/pages/OrderDetail'));
 // --- Sustainability Sub-Pages ---
 const ImpactReport = lazy(() => import('@/pages/sustainability/ImpactReport'));
 const EcoFriendlyMaterials = lazy(() => import('@/pages/sustainability/EcoFriendlyMaterials'));
-// --- এই পেজটির নাম পরিবর্তন করা হয়েছে ---
+
 const CircularEconomySummary = lazy(() => import('@/pages/sustainability/CircularEconomy')); // CircularEconomySummary -> CircularEconomy
 const WaterConservation = lazy(() => import('@/pages/sustainability/WaterConservation'));
 const HundredPercentEcoFriendly = lazy(() => import('@/pages/sustainability/HundredPercentEcoFriendly'));
@@ -73,7 +70,7 @@ function App() {
               <main className="flex-grow">
                 <Suspense fallback={<LoadingFallback />}>
                   <Routes>
-                    {/* --- Public Routes (সবার জন্য উন্মুক্ত) --- */}
+                    {/* --- Public Routes */}
                     <Route path="/" element={<Home />} />
                     <Route path="/products" element={<Products />} />
                     <Route path="/products/:id" element={<ProductDetail />} />
@@ -86,10 +83,10 @@ function App() {
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="/terms-of-service" element={<TermsOfService />} />
                     <Route path="/cookie-policy" element={<CookiePolicy />} />
-                    {/* --- এই রুটগুলোর নাম আপডেট করা হয়েছে --- */}
+                   
                     <Route path="/recycling" element={<DonationRecycling />} />
                     <Route path="/sustainability/circular-economy-summary" element={<CircularEconomySummary />} /> 
-                    {/* --- (বাকি রুটগুলো অপরিবর্তিত) --- */}
+                   
                     <Route path="/sustainability/impact-report" element={<ImpactReport />} />
                     <Route path="/sustainability/eco-friendly-materials" element={<EcoFriendlyMaterials />} />
                     <Route path="/sustainability/water-conservation" element={<WaterConservation />} />
@@ -98,7 +95,7 @@ function App() {
                     <Route path="/sustainability/planet-positive" element={<PlanetPositive />} />
 
 
-                    {/* --- ২. প্রাইভেট ইউজার রুট (লগইন করা ইউজারদের জন্য) --- */}
+                    
                     <Route element={<PrivateRoute />}>
                       <Route path="/checkout" element={<Checkout />} />
                       <Route path="/profile" element={<Profile />} />
@@ -106,7 +103,7 @@ function App() {
                       <Route path="/my-orders" element={<MyOrders />} />
                       <Route path="/my-orders/:orderId" element={<OrderDetail />} />
                     </Route>
-                    {/* --- পরিবর্তন শেষ --- */}
+                    
 
                     
                     {/* --- Admin Routes (Protected) --- */}
@@ -131,7 +128,7 @@ function App() {
               </main>
               <Footer />
               <Toaster />
-              {/* <AiHelper />  (এই লাইনটি কমেন্ট করা আছে, আপনি পরে অ্যাড করতে পারেন) */}
+             
             </div>
           </Router>
         </WishlistProvider>

@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
+import { formatPrice } from '@/lib/utils'; // Import helper
 
 const Checkout = () => {
   const { items, getCartTotal, clearCart } = useCart();
@@ -123,7 +124,6 @@ const Checkout = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -140,7 +140,6 @@ const Checkout = () => {
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Checkout Form */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -148,7 +147,6 @@ const Checkout = () => {
             className="space-y-6"
           >
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Contact Information */}
               <Card className="leaf-shadow">
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
@@ -167,7 +165,6 @@ const Checkout = () => {
                 </CardContent>
               </Card>
 
-              {/* Shipping Address */}
               <Card className="leaf-shadow">
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
@@ -231,7 +228,6 @@ const Checkout = () => {
                 </CardContent>
               </Card>
 
-              {/* Payment Information */}
               <Card className="leaf-shadow">
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
@@ -277,7 +273,6 @@ const Checkout = () => {
                 </CardContent>
               </Card>
 
-              {/* Place Order Button */}
               <Button
                 type="submit"
                 disabled={isProcessing}
@@ -290,20 +285,26 @@ const Checkout = () => {
                     <span>Processing...</span>
                   </div>
                 ) : (
-                  `Place Order - $${((getCartTotal() - discount) * 1.08).toFixed(2)}`
+                  `Pay ${formatPrice(((getCartTotal() - discount) * 1.08))}`
                 )}
               </Button>
+              
+              <div className="mt-4 p-3 bg-blue-50 rounded-md border border-blue-100">
+                <p className="text-sm text-blue-800 font-medium flex items-center justify-center">
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Payment accepted via Visa / Mastercard (Dual Currency Supported)
+                </p>
+              </div>
+
             </form>
           </motion.div>
 
-          {/* Order Summary */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
             className="space-y-6"
           >
-            {/* Order Items */}
             <Card className="leaf-shadow">
               <CardHeader>
                 <CardTitle>Order Summary</CardTitle>
@@ -311,7 +312,6 @@ const Checkout = () => {
               <CardContent className="space-y-4">
                 {items.map((item) => (
                   <div key={item.id} className="flex items-center space-x-4 py-3 border-b border-gray-200 last:border-b-0">
-                    {/* --- FIX: Use correct image source logic --- */}
                     <img  
                       className="w-16 h-16 object-cover rounded-lg"
                       alt={item.name}
@@ -325,17 +325,15 @@ const Checkout = () => {
                       <h4 className="font-medium text-gray-900">{item.name}</h4>
                       <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                     </div>
-                    <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                    <span className="font-medium">{formatPrice(item.price * item.quantity)}</span>
                   </div>
                 ))}
               </CardContent>
             </Card>
 
-            {/* Price Breakdown */}
             <Card className="leaf-shadow">
               <CardContent className="space-y-3 pt-6">
                 
-                {/* Promo Code Input */}
                 <div className="flex space-x-2 mb-4">
                   <Input 
                     placeholder="Promo Code" 
@@ -349,13 +347,13 @@ const Checkout = () => {
 
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal:</span>
-                  <span className="font-medium">${getCartTotal().toFixed(2)}</span>
+                  <span className="font-medium">{formatPrice(getCartTotal())}</span>
                 </div>
                 
                 {discount > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span className="flex items-center"><Tag className="w-3 h-3 mr-1"/> Discount:</span>
-                    <span className="font-medium">-${discount.toFixed(2)}</span>
+                    <span className="font-medium">-{formatPrice(discount)}</span>
                   </div>
                 )}
 
@@ -365,20 +363,19 @@ const Checkout = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tax:</span>
-                  <span className="font-medium">${((getCartTotal() - discount) * 0.08).toFixed(2)}</span>
+                  <span className="font-medium">{formatPrice((getCartTotal() - discount) * 0.08)}</span>
                 </div>
                 <div className="border-t border-gray-200 pt-3">
                   <div className="flex justify-between">
                     <span className="text-lg font-semibold text-gray-900">Total:</span>
                     <span className="text-lg font-bold text-green-600">
-                      ${((getCartTotal() - discount) * 1.08).toFixed(2)}
+                      {formatPrice((getCartTotal() - discount) * 1.08)}
                     </span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Security Features */}
             <Card className="leaf-shadow">
               <CardContent className="pt-6">
                 <div className="space-y-3">
@@ -398,7 +395,6 @@ const Checkout = () => {
               </CardContent>
             </Card>
 
-            {/* Eco Impact */}
             <Card className="leaf-shadow bg-green-50">
               <CardContent className="pt-6">
                 <h4 className="font-semibold text-green-800 mb-3">🌱 Your Eco Impact</h4>

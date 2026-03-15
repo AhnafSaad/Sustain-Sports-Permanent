@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/components/ui/use-toast';
+import { formatPrice } from '@/lib/utils'; // Import helper
 import axios from 'axios';
 
 const Products = () => {
@@ -50,13 +51,8 @@ const Products = () => {
     setSelectedCategory(searchParams.get('category') || 'all');
   }, [searchParams]);
 
-  // --- 1. BUG FIX: Add to Cart ---
-  // The cart context expects an 'id' property, but our API product has '_id'.
-  // We must map it here to ensure the cart works correctly.
   const handleAddToCart = (product) => {
-    // --- ছবির অ্যারে থেকে প্রথম ছবিটি ব্যবহার করুন ---
     const imageToShow = (product.images && product.images.length > 0) ? product.images[0] : product.image;
-    
     const productToAdd = { ...product, id: product._id, image: imageToShow };
     addToCart(productToAdd);
     toast({
@@ -111,7 +107,6 @@ const Products = () => {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="bg-white rounded-2xl shadow-lg p-6 mb-8"
         >
-          {/* ... (filter controls - no changes) ... */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-center">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -211,22 +206,18 @@ const Products = () => {
               whileHover={{ y: -5 }}
             >
               {viewMode === 'grid' ? (
-                // --- GRID VIEW CARD ---
                 <Card className="overflow-hidden leaf-shadow hover:shadow-xl transition-all duration-300 h-full flex flex-col">
                    <div className="relative">
-                       {/* --- এই লাইনটি পরিবর্তন করা হয়েছে --- */}
                        <img
                          className="w-full h-48 object-cover"
                          alt={product.name}
                          src={(product.images && product.images.length > 0) ? product.images[0] : product.image} 
                        />
-                       {/* --- পরিবর্তন শেষ --- */}
                        <Badge className="absolute top-3 left-3 bg-green-600 text-white">
                          {product.ecoTag}
                        </Badge>
                      </div>
                      <CardContent className="p-4 space-y-3 flex-1">
-                       {/* ... (rest of card content) ... */}
                        <div className="space-y-1">
                          <h3 className="font-semibold text-gray-900 line-clamp-2">{product.name}</h3>
                          <p className="text-sm text-gray-600 line-clamp-2">{product.description}</p>
@@ -246,15 +237,19 @@ const Products = () => {
                          </div>
                          <span className="text-sm text-gray-600">({product.reviews})</span>
                        </div>
+                       {/* DUAL CURRENCY DISPLAY */}
                        <div className="flex items-center space-x-2">
-                         <span className="text-lg font-bold text-green-600">${product.price}</span>
+                         <span className="text-lg font-bold text-green-600">
+                           {formatPrice(product.price)}
+                         </span>
                          {product.originalPrice > product.price && (
-                           <span className="text-sm text-gray-500 line-through">${product.originalPrice}</span>
+                           <span className="text-sm text-gray-500 line-through">
+                             {formatPrice(product.originalPrice)}
+                           </span>
                          )}
                        </div>
                      </CardContent>
                      <CardFooter className="p-4 pt-0 mt-auto">
-                       {/* ... (card footer buttons) ... */}
                        <div className="w-full flex space-x-2">
                            <Button
                             onClick={() => handleAddToCart(product)}
@@ -272,24 +267,18 @@ const Products = () => {
                      </CardFooter>
                 </Card>
               ) : (
-                // --- LIST VIEW CARD ---
                 <Card className="overflow-hidden leaf-shadow hover:shadow-lg transition-all duration-300 flex">
-                  {/* Image */}
                   <div className="relative w-1/3 md:w-1/4 flex-shrink-0">
-                    {/* --- এই লাইনটি পরিবর্তন করা হয়েছে --- */}
                     <img
                       className="w-full h-full object-cover"
                       alt={product.name}
                       src={(product.images && product.images.length > 0) ? product.images[0] : product.image}
                     />
-                    {/* --- পরিবর্তন শেষ --- */}
                     <Badge className="absolute top-3 left-3 bg-green-600 text-white">
                       {product.ecoTag}
                     </Badge>
                   </div>
-                  {/* Content */}
                   <CardContent className="p-4 flex-1 space-y-2">
-                    {/* ... (rest of list view content) ... */}
                     <h3 className="text-xl font-semibold text-gray-900">{product.name}</h3>
                     <p className="text-sm text-gray-600 line-clamp-3">{product.description}</p>
                     <div className="flex items-center space-x-2">
@@ -307,16 +296,19 @@ const Products = () => {
                       </div>
                       <span className="text-sm text-gray-600">({product.reviews})</span>
                     </div>
+                    {/* DUAL CURRENCY DISPLAY */}
                     <div className="flex items-center space-x-2">
-                      <span className="text-lg font-bold text-green-600">${product.price}</span>
+                      <span className="text-lg font-bold text-green-600">
+                        {formatPrice(product.price)}
+                      </span>
                       {product.originalPrice > product.price && (
-                        <span className="text-sm text-gray-500 line-through">${product.originalPrice}</span>
+                        <span className="text-sm text-gray-500 line-through">
+                          {formatPrice(product.originalPrice)}
+                        </span>
                       )}
                     </div>
                   </CardContent>
-                  {/* Buttons */}
                   <CardFooter className="p-4 flex flex-col justify-center space-y-2 w-1/3 md:w-1/4">
-                    {/* ... (list view buttons) ... */}
                     <Button
                       onClick={() => handleAddToCart(product)}
                       className="w-full bg-green-600 hover:bg-green-700 text-white"
@@ -336,7 +328,6 @@ const Products = () => {
           ))}
         </motion.div>
         
-        {/* "No products found" section */}
         {filteredProducts.length === 0 && (
           <motion.div
             initial={{ opacity: 0 }}

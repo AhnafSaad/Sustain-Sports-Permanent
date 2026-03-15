@@ -4,10 +4,11 @@ import { motion } from 'framer-motion';
 import { ShoppingCart, Star, Heart, Share2, ArrowLeft, Check, Truck, Shield, Recycle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { useCart } from '@/contexts/CartContext';
-import { useWishlist } from '@/contexts/WishlistContext'; // <-- 1. IMPORT useWishlist
+import { useWishlist } from '@/contexts/WishlistContext';
 import { useToast } from '@/components/ui/use-toast';
+import { formatPrice } from '@/lib/utils'; // Import helper
 import axios from 'axios'; 
 
 const ProductDetail = () => {
@@ -16,7 +17,6 @@ const ProductDetail = () => {
   const { addToCart } = useCart();
   const { toast } = useToast();
   
-  // --- 2. ADD WISHLIST HOOK ---
   const { items: wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
 
   const [product, setProduct] = useState(null);
@@ -26,12 +26,9 @@ const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [reviews, setReviews] = useState([]); 
 
-  // --- 3. CHECK IF ITEM IS IN WISHLIST ---
-  // We map the API's '_id' to the 'id' our context expects
   const productToAdd = product ? { ...product, id: product._id } : null;
   const isInWishlist = productToAdd ? wishlistItems.some(item => item.id === productToAdd.id) : false;
 
-  // Fetch product data
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -79,7 +76,6 @@ const ProductDetail = () => {
     navigate('/checkout');
   };
 
-  // --- 4. UPDATE handleWishlist ---
   const handleWishlist = () => {
     if (!productToAdd) return;
 
@@ -100,7 +96,7 @@ const ProductDetail = () => {
 
   const handleShare = () => {
     toast({
-      title: "🚧 Share feature isn't implemented yet—but don't worry! You can request it in your next prompt! 🚀"
+      title: "Feature coming soon 🚀"
     });
   };
   
@@ -127,12 +123,9 @@ const ProductDetail = () => {
     );
   }
 
-  // --- এই লাইনটি যোগ করা হয়েছে ---
-  // যদি product.images থাকে তবে সেটি ব্যবহার করুন, না থাকলে পুরনো product.image ব্যবহার করুন
   const imageGallery = (product.images && product.images.length > 0) 
     ? product.images 
     : [product.image || "https://images.unsplash.com/photo-1683724709712-b68cbb3f0069"];
-  // --- পরিবর্তন শেষ ---
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-8">
@@ -163,8 +156,7 @@ const ProductDetail = () => {
               <img  
                 className="w-full h-96 object-cover rounded-2xl shadow-lg"
                 alt={product.name}
-                // --- এই লাইনটি পরিবর্তন করা হয়েছে ---
-                src={imageGallery[selectedImage]} // এখন এটি state অনুযায়ী ছবি দেখাবে
+                src={imageGallery[selectedImage]}
               />
               <Badge className="absolute top-4 left-4 bg-green-600 text-white">
                 {product.ecoTag}
@@ -176,9 +168,7 @@ const ProductDetail = () => {
               )}
             </div>
             
-            {/* --- এই সেকশনটি পরিবর্তন করা হয়েছে --- */}
             <div className="grid grid-cols-4 gap-2">
-              {/* হার্ড-কোড করা ছবির বদলে 'imageGallery' ম্যাপ করা হয়েছে */}
               {imageGallery.map((imgSrc, index) => (
                 <motion.div
                   key={index}
@@ -187,17 +177,16 @@ const ProductDetail = () => {
                   className={`cursor-pointer rounded-lg overflow-hidden border-2 ${
                     selectedImage === index ? 'border-green-600' : 'border-gray-200'
                   }`}
-                  onClick={() => setSelectedImage(index)} // এটি এখন সঠিকভাবে কাজ করবে
+                  onClick={() => setSelectedImage(index)}
                 >
                   <img  
                     className="w-full h-20 object-cover"
                     alt={`${product.name} view ${index + 1}`}
-                    src={imgSrc || "https://images.unsplash.com/photo-1589595427524-2ddaf2d43fc9"} // সোর্স এখন ডাইনামিক
+                    src={imgSrc || "https://images.unsplash.com/photo-1589595427524-2ddaf2d43fc9"}
                   />
                 </motion.div>
               ))}
             </div>
-            {/* --- পরিবর্তন শেষ --- */}
           </motion.div>
 
           <motion.div
@@ -216,7 +205,6 @@ const ProductDetail = () => {
                     variant="outline"
                     size="sm"
                     onClick={handleWishlist}
-                    // --- 5. UPDATE BUTTON STYLE BASED ON STATE ---
                     className={`border-gray-300 hover:bg-gray-50 ${
                       isInWishlist ? 'text-red-500' : 'text-gray-600'
                     }`}
@@ -252,14 +240,19 @@ const ProductDetail = () => {
                 <span className="text-gray-600">({reviews.length > 0 ? reviews.length : (product.reviews || 0)} reviews)</span>
               </div>
 
+              {/* DUAL CURRENCY DISPLAY */}
               <div className="flex items-center space-x-4">
-                <span className="text-3xl font-bold text-green-600">${product.price}</span>
+                <span className="text-3xl font-bold text-green-600">
+                  {formatPrice(product.price)}
+                </span>
                 {product.originalPrice > product.price && (
-                  <span className="text-xl text-gray-500 line-through">${product.originalPrice}</span>
+                  <span className="text-xl text-gray-500 line-through">
+                    {formatPrice(product.originalPrice)}
+                  </span>
                 )}
                 {product.originalPrice > product.price && (
                   <Badge className="bg-red-500 text-white">
-                    Save ${(product.originalPrice - product.price).toFixed(2)}
+                    Save {formatPrice(product.originalPrice - product.price)}
                   </Badge>
                 )}
               </div>
